@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "CLERK_SECRET_KEY",
+    "VITE_CLERK_PUBLISHABLE_KEY",
+    "VITE_API_URL"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": { "cache": false, "persistent": true },
+    "lint": {},
+    "typecheck": { "dependsOn": ["^build"] },
+    "db:generate": { "cache": false },
+    "db:migrate": { "cache": false },
+    "db:studio": { "cache": false, "persistent": true }
+  }
+}
