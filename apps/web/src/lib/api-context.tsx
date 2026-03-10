@@ -1,6 +1,8 @@
-import { useAuth } from "@clerk/clerk-react";
-import React, { createContext, useContext, useMemo } from "react";
-import { createApiClient, type ApiClient } from "@/lib/api-client";
+import React, { createContext, useContext, useMemo } from 'react';
+
+import { useAuth } from '@clerk/clerk-react';
+
+import { type ApiClient, createApiClient } from '@/lib/api-client';
 
 const ApiContext = createContext<ApiClient | null>(null);
 
@@ -23,6 +25,6 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
  */
 export function useApi(): ApiClient {
   const ctx = useContext(ApiContext);
-  if (!ctx) throw new Error("useApi must be used inside <ApiProvider>");
+  if (!ctx) throw new Error('useApi must be used inside <ApiProvider>');
   return ctx;
 }

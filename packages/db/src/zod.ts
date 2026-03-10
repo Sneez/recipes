@@ -9,9 +9,10 @@
  * Data flow:
  *   Drizzle schema → drizzle-zod → @recipes/contracts → hooks → components
  */
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
-import { recipes, users } from "./schema/index";
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
+
+import { recipes, users } from './schema/index';
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 
@@ -29,9 +30,9 @@ export const selectRecipeSchema = createSelectSchema(recipes, {
 });
 
 export const insertRecipeSchema = createInsertSchema(recipes, {
-  title: (s) => s.min(2, "Title must be at least 2 characters").max(255),
-  description: (s) => s.min(10, "Description must be at least 10 characters"),
-  instructions: (s) => s.min(20, "Please provide detailed instructions"),
+  title: (s) => s.min(2, 'Title must be at least 2 characters').max(255),
+  description: (s) => s.min(10, 'Description must be at least 10 characters'),
+  instructions: (s) => s.min(20, 'Please provide detailed instructions'),
   prepTimeMinutes: (s) => s.min(0).max(1440),
   cookTimeMinutes: (s) => s.min(0).max(1440),
   servings: (s) => s.min(1).max(100),

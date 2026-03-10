@@ -1,15 +1,16 @@
-import { Link } from "@tanstack/react-router";
-import { Clock, Users, ChefHat } from "lucide-react";
-import { Badge, type BadgeProps } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatMinutes } from "@/lib/utils";
-import type { RecipeDto } from "@/hooks/use-recipes";
+import { Link } from '@tanstack/react-router';
+import { Clock, Users } from 'lucide-react';
 
-const difficultyVariant: Record<string, BadgeProps["variant"]> = {
-  easy: "easy",
-  medium: "medium",
-  hard: "hard",
+import { Badge, type BadgeProps } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { RecipeDto } from '@/hooks/use-recipes';
+import { formatMinutes } from '@/lib/utils';
+
+const difficultyVariant: Record<string, BadgeProps['variant']> = {
+  easy: 'easy',
+  medium: 'medium',
+  hard: 'hard',
 };
 
 interface RecipeCardProps {
@@ -29,13 +30,18 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             <CardTitle className="text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">
               {recipe.title}
             </CardTitle>
-            <Badge variant={difficultyVariant[recipe.difficulty]} className="shrink-0 capitalize">
+            <Badge
+              variant={difficultyVariant[recipe.difficulty]}
+              className="shrink-0 capitalize"
+            >
               {recipe.difficulty}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground line-clamp-2">{recipe.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {recipe.description}
+          </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             {totalTime > 0 && (
               <span className="flex items-center gap-1">

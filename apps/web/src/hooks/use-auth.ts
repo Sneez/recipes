@@ -4,16 +4,16 @@
  * All authentication-related hooks. Wraps Clerk hooks and exposes
  * the current user profile from our own DB via the API.
  */
-import { useUser } from "@clerk/clerk-react";
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useApi } from "@/lib/api-context";
+import { useUser } from '@clerk/clerk-react';
+import { useQuery } from '@tanstack/react-query';
+
+import { useApi } from '@/lib/api-context';
 
 // ── Query keys ────────────────────────────────────────────────────────────────
 
 export const authKeys = {
-  all: ["auth"] as const,
-  me: () => [...authKeys.all, "me"] as const,
+  all: ['auth'] as const,
+  me: () => [...authKeys.all, 'me'] as const,
 };
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
@@ -32,7 +32,7 @@ export function useCurrentUser() {
       const res = await api.users.getMe();
       if (res.status !== 200) {
         throw new Error(
-          "message" in res.body ? res.body.message : "Failed to load profile",
+          'message' in res.body ? res.body.message : 'Failed to load profile',
         );
       }
       return res.body;
@@ -50,4 +50,4 @@ export function useCurrentUser() {
 }
 
 // Re-export types from @recipes/db/zod so callers don't need to import from two places
-export type { UserDto } from "@recipes/db/zod";
+export type { UserDto } from '@recipes/db/zod';

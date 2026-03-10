@@ -4,22 +4,22 @@ A full-stack TypeScript monorepo for a recipe management app.
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18 + TypeScript + Vite 6 |
-| Routing | TanStack Router (file-based) |
-| Server state | TanStack Query v5 |
-| Forms | React Hook Form + Zod |
-| UI state | Zustand |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Toasts | Sonner |
-| Backend | Fastify 4 + TypeScript (`tsx watch`) |
-| API contracts | ts-rest (shared package) |
-| ORM | Drizzle ORM |
-| Zod schemas | drizzle-zod (auto-generated from schema) |
-| Database | PostgreSQL (Docker) |
-| Auth | Clerk |
-| Monorepo | pnpm workspaces + Turborepo |
+| Layer         | Technology                               |
+| ------------- | ---------------------------------------- |
+| Frontend      | React 18 + TypeScript + Vite 6           |
+| Routing       | TanStack Router (file-based)             |
+| Server state  | TanStack Query v5                        |
+| Forms         | React Hook Form + Zod                    |
+| UI state      | Zustand                                  |
+| Styling       | Tailwind CSS v4 + shadcn/ui              |
+| Toasts        | Sonner                                   |
+| Backend       | Fastify 4 + TypeScript (`tsx watch`)     |
+| API contracts | ts-rest (shared package)                 |
+| ORM           | Drizzle ORM                              |
+| Zod schemas   | drizzle-zod (auto-generated from schema) |
+| Database      | PostgreSQL (Docker)                      |
+| Auth          | Clerk                                    |
+| Monorepo      | pnpm workspaces + Turborepo              |
 
 ## Project Structure
 
@@ -80,6 +80,7 @@ them, components import from hooks.
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js ≥ 20, pnpm ≥ 9, Docker
 
 ### Setup
@@ -137,7 +138,7 @@ Components never call `useApi()` or `useQueryClient()` directly.
 // Wrap once at app root
 <ApiProvider>
   <App />
-</ApiProvider>
+</ApiProvider>;
 
 // Consume in hooks only — never in components
 const api = useApi();

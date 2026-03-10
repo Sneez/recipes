@@ -1,7 +1,8 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { Toaster } from "sonner";
-import { AppNav } from "@/components/AppNav";
+import { Outlet, createRootRoute } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { Toaster } from 'sonner';
+
+import { AppNav } from '@/components/AppNav';
 
 export const Route = createRootRoute({
   component: () => (
@@ -14,10 +15,10 @@ export const Route = createRootRoute({
         position="bottom-right"
         toastOptions={{
           style: {
-            fontFamily: "var(--font-body)",
-            background: "var(--color-card)",
-            color: "var(--color-foreground)",
-            border: "1px solid var(--color-border)",
+            fontFamily: 'var(--font-body)',
+            background: 'var(--color-card)',
+            color: 'var(--color-foreground)',
+            border: '1px solid var(--color-border)',
           },
         }}
       />

@@ -1,28 +1,29 @@
-import "dotenv/config";
-import Fastify from "fastify";
-import cors from "@fastify/cors";
-import helmet from "@fastify/helmet";
-import { clerkPlugin } from "./plugins/clerk.js";
-import { recipesRouter } from "./routes/recipes.js";
-import { usersRouter } from "./routes/users.js";
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import 'dotenv/config';
+import Fastify from 'fastify';
 
-const HOST = process.env["API_HOST"] ?? "0.0.0.0";
-const PORT = Number(process.env["API_PORT"] ?? 3000);
+import { clerkPlugin } from './plugins/clerk.js';
+import { recipesRouter } from './routes/recipes.js';
+import { usersRouter } from './routes/users.js';
+
+const HOST = process.env['API_HOST'] ?? '0.0.0.0';
+const PORT = Number(process.env['API_PORT'] ?? 3000);
 
 async function buildApp() {
   const app = Fastify({
     logger: {
-      level: process.env["NODE_ENV"] === "production" ? "info" : "debug",
+      level: process.env['NODE_ENV'] === 'production' ? 'info' : 'debug',
       transport:
-        process.env["NODE_ENV"] !== "production"
-          ? { target: "pino-pretty" }
+        process.env['NODE_ENV'] !== 'production'
+          ? { target: 'pino-pretty' }
           : undefined,
     },
   });
 
   await app.register(helmet);
   await app.register(cors, {
-    origin: process.env["WEB_URL"] ?? "http://localhost:5173",
+    origin: process.env['WEB_URL'] ?? 'http://localhost:5173',
     credentials: true,
   });
 
@@ -30,8 +31,8 @@ async function buildApp() {
   await app.register(usersRouter);
   await app.register(recipesRouter);
 
-  app.get("/health", async () => ({
-    status: "ok",
+  app.get('/health', async () => ({
+    status: 'ok',
     timestamp: new Date().toISOString(),
   }));
 

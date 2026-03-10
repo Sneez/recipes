@@ -1,16 +1,19 @@
-import * as React from "react";
-import * as LabelPrimitive from "@radix-ui/react-label";
-import { Slot } from "@radix-ui/react-slot";
+import * as React from 'react';
 import {
   Controller,
-  FormProvider,
-  useFormContext,
   type ControllerProps,
   type FieldPath,
   type FieldValues,
-} from "react-hook-form";
-import { cn } from "@/lib/utils";
-import { Label } from "./label";
+  FormProvider,
+  useFormContext,
+} from 'react-hook-form';
+
+import * as LabelPrimitive from '@radix-ui/react-label';
+import { Slot } from '@radix-ui/react-slot';
+
+import { cn } from '@/lib/utils';
+
+import { Label } from './label';
 
 const Form = FormProvider;
 
@@ -51,19 +54,22 @@ const useFormField = () => {
 };
 
 type FormItemContextValue = { id: string };
-const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
-
-const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    const id = React.useId();
-    return (
-      <FormItemContext.Provider value={{ id }}>
-        <div ref={ref} className={cn("space-y-1.5", className)} {...props} />
-      </FormItemContext.Provider>
-    );
-  },
+const FormItemContext = React.createContext<FormItemContextValue>(
+  {} as FormItemContextValue,
 );
-FormItem.displayName = "FormItem";
+
+const FormItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  const id = React.useId();
+  return (
+    <FormItemContext.Provider value={{ id }}>
+      <div ref={ref} className={cn('space-y-1.5', className)} {...props} />
+    </FormItemContext.Provider>
+  );
+});
+FormItem.displayName = 'FormItem';
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
@@ -73,53 +79,77 @@ const FormLabel = React.forwardRef<
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn(error && 'text-destructive', className)}
       htmlFor={formItemId}
       {...props}
     />
   );
 });
-FormLabel.displayName = "FormLabel";
+FormLabel.displayName = 'FormLabel';
 
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+  const { error, formItemId, formDescriptionId, formMessageId } =
+    useFormField();
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={
+        !error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`
+      }
       aria-invalid={!!error}
       {...props}
     />
   );
 });
-FormControl.displayName = "FormControl";
+FormControl.displayName = 'FormControl';
 
-const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => {
-    const { formDescriptionId } = useFormField();
-    return (
-      <p ref={ref} id={formDescriptionId} className={cn("text-xs text-muted-foreground", className)} {...props} />
-    );
-  },
-);
-FormDescription.displayName = "FormDescription";
+const FormDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => {
+  const { formDescriptionId } = useFormField();
+  return (
+    <p
+      ref={ref}
+      id={formDescriptionId}
+      className={cn('text-xs text-muted-foreground', className)}
+      {...props}
+    />
+  );
+});
+FormDescription.displayName = 'FormDescription';
 
-const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, children, ...props }, ref) => {
-    const { error, formMessageId } = useFormField();
-    const body = error ? String(error.message) : children;
-    if (!body) return null;
-    return (
-      <p ref={ref} id={formMessageId} className={cn("text-xs font-medium text-destructive", className)} {...props}>
-        {body}
-      </p>
-    );
-  },
-);
-FormMessage.displayName = "FormMessage";
+const FormMessage = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, children, ...props }, ref) => {
+  const { error, formMessageId } = useFormField();
+  const body = error ? String(error.message) : children;
+  if (!body) return null;
+  return (
+    <p
+      ref={ref}
+      id={formMessageId}
+      className={cn('text-xs font-medium text-destructive', className)}
+      {...props}
+    >
+      {body}
+    </p>
+  );
+});
+FormMessage.displayName = 'FormMessage';
 
-export { Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField, useFormField };
+export {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+  useFormField,
+};

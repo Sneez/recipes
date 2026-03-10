@@ -1,12 +1,27 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createRecipeSchema } from "@recipes/db/zod";
-import type { CreateRecipeInput, RecipeDto } from "@/hooks/use-recipes";
+import { useForm } from 'react-hook-form';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createRecipeSchema } from '@recipes/db/zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import type { CreateRecipeInput } from '@/hooks/use-recipes';
 
 interface RecipeFormProps {
   defaultValues?: Partial<CreateRecipeInput>;
@@ -15,19 +30,24 @@ interface RecipeFormProps {
   submitLabel?: string;
 }
 
-export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "Save" }: RecipeFormProps) {
+export function RecipeForm({
+  defaultValues,
+  onSubmit,
+  isPending,
+  submitLabel = 'Save',
+}: RecipeFormProps) {
   const form = useForm<CreateRecipeInput>({
     resolver: zodResolver(createRecipeSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      instructions: "",
+      title: '',
+      description: '',
+      instructions: '',
       ingredients: [],
       prepTimeMinutes: 10,
       cookTimeMinutes: 20,
       servings: 4,
-      difficulty: "medium",
-      cuisine: "other",
+      difficulty: 'medium',
+      cuisine: 'other',
       imageUrl: undefined,
       ...defaultValues,
     },
@@ -59,7 +79,11 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="A brief, enticing description…" rows={2} {...field} />
+                <Textarea
+                  placeholder="A brief, enticing description…"
+                  rows={2}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -74,7 +98,11 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
             <FormItem>
               <FormLabel>Instructions</FormLabel>
               <FormControl>
-                <Textarea placeholder="Step 1: Bring salted water to a boil…" rows={5} {...field} />
+                <Textarea
+                  placeholder="Step 1: Bring salted water to a boil…"
+                  rows={5}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,7 +118,12 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
               <FormItem>
                 <FormLabel>Prep (min)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={0} {...field} onChange={(e) => field.onChange(e.target.valueAsNumber)} />
+                  <Input
+                    type="number"
+                    min={0}
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -103,7 +136,12 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
               <FormItem>
                 <FormLabel>Cook (min)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={0} {...field} onChange={(e) => field.onChange(e.target.valueAsNumber)} />
+                  <Input
+                    type="number"
+                    min={0}
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -116,7 +154,12 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
               <FormItem>
                 <FormLabel>Servings</FormLabel>
                 <FormControl>
-                  <Input type="number" min={1} {...field} onChange={(e) => field.onChange(e.target.valueAsNumber)} />
+                  <Input
+                    type="number"
+                    min={1}
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -132,7 +175,10 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Difficulty</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select…" />
@@ -154,15 +200,29 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Cuisine</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select…" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {["italian","mexican","asian","american","french","mediterranean","indian","other"].map((c) => (
-                      <SelectItem key={c} value={c} className="capitalize">{c.charAt(0).toUpperCase() + c.slice(1)}</SelectItem>
+                    {[
+                      'italian',
+                      'mexican',
+                      'asian',
+                      'american',
+                      'french',
+                      'mediterranean',
+                      'indian',
+                      'other',
+                    ].map((c) => (
+                      <SelectItem key={c} value={c} className="capitalize">
+                        {c.charAt(0).toUpperCase() + c.slice(1)}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -174,7 +234,7 @@ export function RecipeForm({ defaultValues, onSubmit, isPending, submitLabel = "
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Saving…" : submitLabel}
+            {isPending ? 'Saving…' : submitLabel}
           </Button>
         </div>
       </form>

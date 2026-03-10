@@ -1,8 +1,9 @@
-import { UserButton } from "@clerk/clerk-react";
-import { Link } from "@tanstack/react-router";
-import { ChefHat } from "lucide-react";
-import { useCurrentUser } from "@/hooks/use-auth";
-import { Separator } from "@/components/ui/separator";
+import { UserButton } from '@clerk/clerk-react';
+import { Link } from '@tanstack/react-router';
+import { ChefHat } from 'lucide-react';
+
+import { Separator } from '@/components/ui/separator';
+import { useCurrentUser } from '@/hooks/use-auth';
 
 export function AppNav() {
   const { clerkUser } = useCurrentUser();
@@ -15,7 +16,7 @@ export function AppNav() {
             <ChefHat className="h-6 w-6 text-accent transition-transform group-hover:rotate-12" />
             <span
               className="text-2xl font-bold tracking-tight"
-              style={{ fontFamily: "var(--font-display)" }}
+              style={{ fontFamily: 'var(--font-display)' }}
             >
               Recipes
             </span>

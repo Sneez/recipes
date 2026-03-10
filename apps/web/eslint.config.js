@@ -1,6 +1,7 @@
 // @ts-check
 import eslint from '@eslint/js';
 import prettier from 'eslint-plugin-prettier/recommended';
+import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -20,6 +21,10 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
+      ...reactHooks.configs.recommended.rules,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
     },
   },
   {

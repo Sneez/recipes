@@ -1,15 +1,15 @@
+import { RecipeForm } from '@/components/RecipeForm';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { RecipeForm } from "@/components/RecipeForm";
-import { useRecipe, useUpdateRecipe } from "@/hooks/use-recipes";
-import { useRecipeUiStore } from "@/store/recipe-ui.store";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { CreateRecipeInput } from "@/hooks/use-recipes";
+} from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useRecipe, useUpdateRecipe } from '@/hooks/use-recipes';
+import type { CreateRecipeInput } from '@/hooks/use-recipes';
+import { useRecipeUiStore } from '@/store/recipe-ui.store';
 
 export function EditRecipeDialog() {
   const { editingRecipeId, closeDialog } = useRecipeUiStore();
@@ -23,11 +23,16 @@ export function EditRecipeDialog() {
   }
 
   return (
-    <Dialog open={!!editingRecipeId} onOpenChange={(open) => !open && closeDialog()}>
+    <Dialog
+      open={!!editingRecipeId}
+      onOpenChange={(open) => !open && closeDialog()}
+    >
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Recipe</DialogTitle>
-          <DialogDescription>Update the details of your recipe.</DialogDescription>
+          <DialogDescription>
+            Update the details of your recipe.
+          </DialogDescription>
         </DialogHeader>
         {isLoading ? (
           <div className="space-y-4 py-2">

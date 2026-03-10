@@ -1,9 +1,17 @@
-import { Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useRecipeUiStore } from "@/store/recipe-ui.store";
+import { useEffect, useState } from 'react';
+
+import { Search, X } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useRecipeUiStore } from '@/store/recipe-ui.store';
 
 // Debounce search input to avoid a query per keystroke
 function useDebounce<T>(value: T, ms = 350): T {
@@ -16,8 +24,14 @@ function useDebounce<T>(value: T, ms = 350): T {
 }
 
 export function RecipeFilters() {
-  const { filters, setSearch, setCuisine, setDifficulty, resetFilters, openCreateDialog } =
-    useRecipeUiStore();
+  const {
+    filters,
+    setSearch,
+    setCuisine,
+    setDifficulty,
+    resetFilters,
+    openCreateDialog,
+  } = useRecipeUiStore();
 
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debouncedSearch = useDebounce(localSearch);
@@ -44,15 +58,26 @@ export function RecipeFilters() {
 
         {/* Cuisine */}
         <Select
-          value={filters.cuisine ?? "all"}
-          onValueChange={(v) => setCuisine(v === "all" ? undefined : (v as typeof filters.cuisine))}
+          value={filters.cuisine ?? 'all'}
+          onValueChange={(v) =>
+            setCuisine(v === 'all' ? undefined : (v as typeof filters.cuisine))
+          }
         >
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Cuisine" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All cuisines</SelectItem>
-            {["italian","mexican","asian","american","french","mediterranean","indian","other"].map((c) => (
+            {[
+              'italian',
+              'mexican',
+              'asian',
+              'american',
+              'french',
+              'mediterranean',
+              'indian',
+              'other',
+            ].map((c) => (
               <SelectItem key={c} value={c} className="capitalize">
                 {c.charAt(0).toUpperCase() + c.slice(1)}
               </SelectItem>
@@ -62,9 +87,11 @@ export function RecipeFilters() {
 
         {/* Difficulty */}
         <Select
-          value={filters.difficulty ?? "all"}
+          value={filters.difficulty ?? 'all'}
           onValueChange={(v) =>
-            setDifficulty(v === "all" ? undefined : (v as typeof filters.difficulty))
+            setDifficulty(
+              v === 'all' ? undefined : (v as typeof filters.difficulty),
+            )
           }
         >
           <SelectTrigger className="w-32">
@@ -79,7 +106,12 @@ export function RecipeFilters() {
         </Select>
 
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={resetFilters} className="text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={resetFilters}
+            className="text-muted-foreground"
+          >
             <X className="mr-1 h-3.5 w-3.5" />
             Clear
           </Button>

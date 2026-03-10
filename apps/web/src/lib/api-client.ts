@@ -1,7 +1,7 @@
-import { contract } from "@recipes/contracts";
-import { initClient } from "@ts-rest/core";
+import { contract } from '@recipes/contracts';
+import { initClient } from '@ts-rest/core';
 
-const API_URL = (import.meta.env["VITE_API_URL"] as string | undefined) ?? "";
+const API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? '';
 
 /**
  * Creates a ts-rest client bound to the given token getter.
@@ -20,7 +20,7 @@ export function createApiClient(getToken: () => Promise<string | null>) {
       const response = await fetch(`${API_URL}${path}`, {
         method,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           ...headers,
           ...authHeaders,
         },
@@ -28,7 +28,11 @@ export function createApiClient(getToken: () => Promise<string | null>) {
       });
 
       const responseBody = await response.json();
-      return { status: response.status, body: responseBody, headers: response.headers };
+      return {
+        status: response.status,
+        body: responseBody,
+        headers: response.headers,
+      };
     },
   });
 }
