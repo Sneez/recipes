@@ -1,18 +1,18 @@
 {
-  "name": "@my-app/api",
+  "name": "@recipes/api",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --clear-screen=false src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@clerk/backend": "^1.0.0",
-    "@my-app/contracts": "workspace:*",
-    "@my-app/db": "workspace:*",
+    "@recipes/contracts": "workspace:*",
+    "@recipes/db": "workspace:*",
     "@ts-rest/core": "^3.45.0",
     "@ts-rest/fastify": "^3.45.0",
     "fastify": "^4.27.0",
@@ -23,13 +23,13 @@
     "dotenv": "^16.4.0"
   },
   "devDependencies": {
-    "tsx": "^4.9.0",
-    "typescript": "^5.4.0",
-    "@types/node": "^20.0.0",
     "@eslint/js": "^9",
     "eslint": "^9",
     "eslint-config-prettier": "^10",
     "eslint-plugin-prettier": "^5",
+    "tsx": "^4.9.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
     "typescript-eslint": "^8"
   }
 }

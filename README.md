@@ -1,178 +1,160 @@
-# My App
+# Recipes
 
-A full-stack TypeScript monorepo: **Fastify** · **React** · **Tailwind CSS v4** · **shadcn/ui** · **Drizzle ORM** · **CockroachDB** · **ts-rest** · **Clerk** · **Zod** · **Turborepo**
+A full-stack TypeScript monorepo for a recipe management app.
 
 ## Stack
 
-| Layer         | Technology                                        |
-| ------------- | ------------------------------------------------- |
-| Frontend      | React 18 + TypeScript + Vite 6                    |
-| Styling       | Tailwind CSS v4 (`@tailwindcss/vite`) + shadcn/ui |
-| Backend       | Fastify 4 + TypeScript                            |
-| API Contracts | ts-rest + Zod (shared package)                    |
-| ORM           | Drizzle ORM                                       |
-| Database      | CockroachDB (PostgreSQL wire protocol)            |
-| Auth          | Clerk                                             |
-| Monorepo      | pnpm workspaces + Turborepo                       |
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + TypeScript + Vite 6 |
+| Routing | TanStack Router (file-based) |
+| Server state | TanStack Query v5 |
+| Forms | React Hook Form + Zod |
+| UI state | Zustand |
+| Styling | Tailwind CSS v4 + shadcn/ui |
+| Toasts | Sonner |
+| Backend | Fastify 4 + TypeScript (`tsx watch`) |
+| API contracts | ts-rest (shared package) |
+| ORM | Drizzle ORM |
+| Zod schemas | drizzle-zod (auto-generated from schema) |
+| Database | PostgreSQL (Docker) |
+| Auth | Clerk |
+| Monorepo | pnpm workspaces + Turborepo |
 
 ## Project Structure
 
 ```
 .
+├── docker-compose.yml          # Local Postgres
 ├── apps/
-│   ├── api/                  # Fastify API server
+│   ├── api/                    # Fastify server
 │   │   └── src/
-│   │       ├── index.ts      # App entry point
-│   │       ├── plugins/
-│   │       │   └── clerk.ts  # Clerk JWT verification
+│   │       ├── index.ts        # tsx watch entry
+│   │       ├── plugins/clerk.ts
 │   │       └── routes/
-│   │           ├── users.ts  # /api/users/* handlers
-│   │           └── posts.ts  # /api/posts/* handlers
-│   └── web/                  # React + Vite frontend
-│       ├── components.json   # shadcn/ui config
+│   │           ├── users.ts
+│   │           └── recipes.ts
+│   └── web/                    # React + Vite
 │       └── src/
+│           ├── routes/         # TanStack Router file-based routes
+│           │   ├── __root.tsx
+│           │   ├── index.tsx
+│           │   └── recipes.$id.tsx
+│           ├── pages/          # Page components (one per route)
 │           ├── components/
-│           │   ├── ui/       # shadcn/ui primitives
-│           │   ├── Layout.tsx
-│           │   └── CreatePostDialog.tsx
+│           │   └── ui/         # shadcn/ui primitives
 │           ├── hooks/
-│           │   └── useClerkApiAuth.ts
-│           ├── lib/
-│           │   ├── api-client.ts  # ts-rest + React Query client
-│           │   └── utils.ts       # cn() helper
-│           ├── pages/
-│           │   ├── HomePage.tsx
-│           │   ├── PostsPage.tsx
-│           │   └── PostDetailPage.tsx
-│           └── globals.css   # Tailwind v4 + CSS variable theme
+│           │   ├── use-recipes.ts   ← all recipe data logic
+│           │   └── use-auth.ts      ← all auth hooks
+│           ├── store/
+│           │   └── recipe-ui.store.ts  ← Zustand UI state
+│           └── lib/
+│               ├── api-client.ts    ← ts-rest client factory
+│               └── api-context.tsx  ← React Context + useApi()
 └── packages/
-    ├── contracts/            # ts-rest contracts + Zod schemas
-    └── db/                   # Drizzle schema + CockroachDB client
+    ├── db/                     # Drizzle schema + client
+    │   └── src/
+    │       ├── schema/         # The source of truth
+    │       │   ├── users.ts
+    │       │   └── recipes.ts
+    │       └── zod.ts          # drizzle-zod schemas (generated from schema)
+    └── contracts/              # ts-rest contract (imports from db/zod)
 ```
+
+## Data Flow
+
+```
+Drizzle schema
+  └─► drizzle-zod  (@recipes/db/zod)
+        └─► ts-rest contract  (@recipes/contracts)
+              └─► useApi() context
+                    └─► use-recipes.ts / use-auth.ts hooks
+                          └─► components
+```
+
+**The database schema is the single source of truth.** No Zod schemas are
+hand-written for entities that exist in the database. All types flow downward:
+`drizzle-zod` generates them, `@recipes/contracts` imports them, hooks re-export
+them, components import from hooks.
 
 ## Getting Started
 
 ### Prerequisites
-
-- Node.js ≥ 20
-- pnpm ≥ 9
-- A [CockroachDB](https://cockroachlabs.com) cluster (serverless free tier works)
-- A [Clerk](https://clerk.com) application
+- Node.js ≥ 20, pnpm ≥ 9, Docker
 
 ### Setup
 
 ```bash
+# Install from the root (required for workspace:* links)
 pnpm install
+
+# Copy env and fill in Clerk keys
 cp .env.example .env
 ```
 
-Fill in `.env`:
-
-```env
-DATABASE_URL="postgresql://<user>:<password>@<host>:26257/<db>?sslmode=verify-full"
-CLERK_SECRET_KEY="sk_test_..."
-VITE_CLERK_PUBLISHABLE_KEY="pk_test_..."
-```
-
-### Database
+### Start Postgres
 
 ```bash
-pnpm db:generate   # generate SQL migrations from Drizzle schema
-pnpm db:migrate    # apply migrations to CockroachDB
-pnpm db:studio     # open Drizzle Studio (optional)
+pnpm docker:up
+# or: docker compose up -d
+```
+
+### Database migrations
+
+```bash
+pnpm db:generate   # generate SQL from Drizzle schema
+pnpm db:migrate    # apply to Postgres
 ```
 
 ### Development
 
 ```bash
 pnpm dev
+# API → http://localhost:3000  (tsx watch, auto-restarts on save)
+# Web → http://localhost:5173
 ```
-
-- **API** → http://localhost:3000
-- **Web** → http://localhost:5173
-
-### Build
-
-```bash
-pnpm build
-```
-
-## Tailwind CSS v4
-
-This project uses **Tailwind v4** which ships as a Vite plugin — no `tailwind.config.ts` is needed.
-
-```ts
-// vite.config.ts
-import tailwindcss from '@tailwindcss/vite';
-
-export default defineConfig({ plugins: [react(), tailwindcss()] });
-```
-
-The theme (colors, border-radius, etc.) is defined entirely via CSS variables in `src/globals.css`:
-
-```css
-@import 'tailwindcss';
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --primary: 220.9 39.3% 11%;
-    /* ... */
-  }
-}
-```
-
-## Adding shadcn/ui Components
-
-`components.json` is already configured. To add more components:
-
-```bash
-cd apps/web
-pnpx shadcn@latest add <component>
-# e.g. pnpx shadcn@latest add toast
-# e.g. pnpx shadcn@latest add table
-```
-
-Components are placed in `src/components/ui/` and exported from the `index.ts` barrel.
 
 ## Key Patterns
 
-### End-to-end type safety (ts-rest)
+### Hook responsibilities (`src/hooks/`)
 
-The `@my-app/contracts` package is imported by both the Fastify server and the React client. A change to a route's schema instantly produces type errors on both sides:
-
-```ts
-// ✅ API — fully typed request + response
-s.router(contract.posts, {
-  create: async ({ body }) => {
-    // body: { title: string, content: string }
-    return { status: 201, body: newPost };
-  },
-});
-
-// ✅ Client — fully typed query hook
-const { data } = apiClient.posts.list.useQuery(['posts'], {
-  query: { page: 1, limit: 10 },
-});
-// data.body → { items: Post[], totalPages: number, ... }
-```
-
-### Auth (Clerk)
-
-Every Fastify route reads the Clerk JWT from `Authorization: Bearer <token>`. Use `requireAuth()` to guard a route:
+Each hook file owns everything for its entity:
 
 ```ts
-const auth = requireAuth(request, reply);
-if (!auth) return; // 401 already sent
-// auth.userId is the Clerk user ID
+// ✅ use-recipes.ts handles:
+export const recipeKeys = { ... }          // query key factory
+export function useRecipes(query) { ... }  // list query w/ keepPreviousData
+export function useRecipe(id) { ... }      // detail query
+export function useCreateRecipe() { ... }  // mutation + cache invalidation + toast
+export type { RecipeDto, CreateRecipeInput } from "@recipes/db/zod"; // type re-exports
 ```
 
-On the frontend, `useClerkApiAuth()` in `Layout` automatically injects the session token into every `apiClient` call.
+Components never call `useApi()` or `useQueryClient()` directly.
+
+### API client context
+
+```tsx
+// Wrap once at app root
+<ApiProvider>
+  <App />
+</ApiProvider>
+
+// Consume in hooks only — never in components
+const api = useApi();
+```
+
+### UI state with Zustand
+
+```ts
+// Filter state + dialog control live in the store
+const { filters, openCreateDialog, setCuisine } = useRecipeUiStore();
+```
 
 ### Adding a new resource
 
-1. **Schema** — add a Drizzle table in `packages/db/src/schema/`
-2. **Zod schemas** — add input/output shapes in `packages/contracts/src/schemas.ts`
-3. **Contract** — add routes to `packages/contracts/src/contract.ts`
-4. **Route handler** — add a ts-rest router in `apps/api/src/routes/`
-5. **UI** — consume via `apiClient` in `apps/web/src/`
+1. Add a Drizzle table in `packages/db/src/schema/`
+2. Export Zod schemas from `packages/db/src/zod.ts` using `createSelectSchema` / `createInsertSchema`
+3. Add the route to `packages/contracts/src/contract.ts` (import schemas from step 2)
+4. Add route handler in `apps/api/src/routes/`
+5. Create `apps/web/src/hooks/use-<entity>.ts` following the pattern above
+6. Build pages and components that import types exclusively from the hook file

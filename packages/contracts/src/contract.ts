@@ -1,88 +1,99 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
-
+/**
+ * @recipes/contracts
+ *
+ * All schemas imported from @recipes/db/zod — never redeclared here.
+ * This file is the API surface: path, method, request/response shapes.
+ */
+import { initContract } from "@ts-rest/core";
+import { z } from "zod";
 import {
-  CreatePostSchema,
-  ErrorSchema,
-  PaginatedSchema,
-  PostListQuerySchema,
-  PostSchema,
-  UpdatePostSchema,
-  UserSchema,
-} from './schemas';
+  createRecipeSchema,
+  errorSchema,
+  paginatedSchema,
+  recipeListQuerySchema,
+  selectRecipeSchema,
+  selectUserSchema,
+  updateRecipeSchema,
+} from "@recipes/db/zod";
 
 const c = initContract();
 
+// ── Users ─────────────────────────────────────────────────────────────────────
+
 export const usersContract = c.router({
   getMe: {
-    method: 'GET',
-    path: '/users/me',
-    responses: { 200: UserSchema, 401: ErrorSchema, 404: ErrorSchema },
-    summary: 'Get current authenticated user',
+    method: "GET",
+    path: "/users/me",
+    responses: { 200: selectUserSchema, 401: errorSchema, 404: errorSchema },
+    summary: "Get current authenticated user",
   },
   updateMe: {
-    method: 'PATCH',
-    path: '/users/me',
-    body: UserSchema.pick({ firstName: true, lastName: true }),
-    responses: { 200: UserSchema, 401: ErrorSchema, 422: ErrorSchema },
-    summary: 'Update current user profile',
+    method: "PATCH",
+    path: "/users/me",
+    body: selectUserSchema.pick({ firstName: true, lastName: true }),
+    responses: { 200: selectUserSchema, 401: errorSchema, 422: errorSchema },
+    summary: "Update current user profile",
   },
 });
 
-export const postsContract = c.router({
+// ── Recipes ───────────────────────────────────────────────────────────────────
+
+export const recipesContract = c.router({
   list: {
-    method: 'GET',
-    path: '/posts',
-    query: PostListQuerySchema,
-    responses: { 200: PaginatedSchema(PostSchema), 401: ErrorSchema },
-    summary: 'List posts with pagination',
+    method: "GET",
+    path: "/recipes",
+    query: recipeListQuerySchema,
+    responses: { 200: paginatedSchema(selectRecipeSchema), 401: errorSchema },
+    summary: "List recipes with pagination + filters",
   },
   getById: {
-    method: 'GET',
-    path: '/posts/:id',
+    method: "GET",
+    path: "/recipes/:id",
     pathParams: z.object({ id: z.string().uuid() }),
-    responses: { 200: PostSchema, 401: ErrorSchema, 404: ErrorSchema },
-    summary: 'Get a single post by ID',
+    responses: { 200: selectRecipeSchema, 401: errorSchema, 404: errorSchema },
+    summary: "Get a single recipe",
   },
   create: {
-    method: 'POST',
-    path: '/posts',
-    body: CreatePostSchema,
-    responses: { 201: PostSchema, 401: ErrorSchema, 422: ErrorSchema },
-    summary: 'Create a new post',
+    method: "POST",
+    path: "/recipes",
+    body: createRecipeSchema,
+    responses: { 201: selectRecipeSchema, 401: errorSchema, 422: errorSchema },
+    summary: "Create a recipe",
   },
   update: {
-    method: 'PATCH',
-    path: '/posts/:id',
+    method: "PATCH",
+    path: "/recipes/:id",
     pathParams: z.object({ id: z.string().uuid() }),
-    body: UpdatePostSchema,
+    body: updateRecipeSchema,
     responses: {
-      200: PostSchema,
-      401: ErrorSchema,
-      403: ErrorSchema,
-      404: ErrorSchema,
-      422: ErrorSchema,
+      200: selectRecipeSchema,
+      401: errorSchema,
+      403: errorSchema,
+      404: errorSchema,
+      422: errorSchema,
     },
-    summary: 'Update a post',
+    summary: "Update a recipe",
   },
   delete: {
-    method: 'DELETE',
-    path: '/posts/:id',
+    method: "DELETE",
+    path: "/recipes/:id",
     pathParams: z.object({ id: z.string().uuid() }),
     body: c.noBody(),
     responses: {
       200: z.object({ success: z.boolean() }),
-      401: ErrorSchema,
-      403: ErrorSchema,
-      404: ErrorSchema,
+      401: errorSchema,
+      403: errorSchema,
+      404: errorSchema,
     },
-    summary: 'Delete a post',
+    summary: "Delete a recipe",
   },
 });
 
+// ── Root ──────────────────────────────────────────────────────────────────────
+
 export const contract = c.router(
-  { users: usersContract, posts: postsContract },
-  { pathPrefix: '/api', strictStatusCodes: true },
+  { users: usersContract, recipes: recipesContract },
+  { pathPrefix: "/api", strictStatusCodes: true },
 );
 
 export type AppContract = typeof contract;
