@@ -1,26 +1,34 @@
-import { contract } from "@my-app/contracts";
-import { db, users } from "@my-app/db";
-import { initServer } from "@ts-rest/fastify";
-import { eq } from "drizzle-orm";
-import type { FastifyInstance } from "fastify";
-import { requireAuth } from "../plugins/clerk.js";
+import { contract } from '@my-app/contracts';
+import { db, users } from '@my-app/db';
+import { initServer } from '@ts-rest/fastify';
+import { eq } from 'drizzle-orm';
+import type { FastifyInstance } from 'fastify';
+
+import { requireAuth } from '../plugins/clerk.js';
 
 const s = initServer();
 
 const usersRouterImpl = s.router(contract.users, {
   getMe: async ({ request, reply }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
-    const [user] = await db.select().from(users).where(eq(users.id, auth.userId)).limit(1);
-    if (!user) return { status: 404 as const, body: { message: "User not found" } };
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, auth.userId))
+      .limit(1);
+    if (!user)
+      return { status: 404 as const, body: { message: 'User not found' } };
 
     return { status: 200 as const, body: user };
   },
 
   updateMe: async ({ request, reply, body }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
     const [updated] = await db
       .update(users)
@@ -28,7 +36,8 @@ const usersRouterImpl = s.router(contract.users, {
       .where(eq(users.id, auth.userId))
       .returning();
 
-    if (!updated) return { status: 401 as const, body: { message: "User not found" } };
+    if (!updated)
+      return { status: 401 as const, body: { message: 'User not found' } };
 
     return { status: 200 as const, body: updated };
   },

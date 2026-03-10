@@ -1,10 +1,14 @@
 {
   "name": "my-app",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "format": "prettier --write .",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "db:generate": "turbo run db:generate",
@@ -15,8 +19,11 @@
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
     "@types/node": "^20.0.0",
-    "prettier": "^3.2.0"
+    "prettier": "^3.2.0",
+    "@trivago/prettier-plugin-sort-imports": "^5"
   },
-  "engines": { "node": ">=20.0.0" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "packageManager": "pnpm@9.0.0"
 }

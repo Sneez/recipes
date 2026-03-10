@@ -4,16 +4,16 @@ A full-stack TypeScript monorepo: **Fastify** · **React** · **Tailwind CSS v4*
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18 + TypeScript + Vite 6 |
-| Styling | Tailwind CSS v4 (`@tailwindcss/vite`) + shadcn/ui |
-| Backend | Fastify 4 + TypeScript |
-| API Contracts | ts-rest + Zod (shared package) |
-| ORM | Drizzle ORM |
-| Database | CockroachDB (PostgreSQL wire protocol) |
-| Auth | Clerk |
-| Monorepo | pnpm workspaces + Turborepo |
+| Layer         | Technology                                        |
+| ------------- | ------------------------------------------------- |
+| Frontend      | React 18 + TypeScript + Vite 6                    |
+| Styling       | Tailwind CSS v4 (`@tailwindcss/vite`) + shadcn/ui |
+| Backend       | Fastify 4 + TypeScript                            |
+| API Contracts | ts-rest + Zod (shared package)                    |
+| ORM           | Drizzle ORM                                       |
+| Database      | CockroachDB (PostgreSQL wire protocol)            |
+| Auth          | Clerk                                             |
+| Monorepo      | pnpm workspaces + Turborepo                       |
 
 ## Project Structure
 
@@ -103,14 +103,15 @@ This project uses **Tailwind v4** which ships as a Vite plugin — no `tailwind.
 
 ```ts
 // vite.config.ts
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
+
 export default defineConfig({ plugins: [react(), tailwindcss()] });
 ```
 
 The theme (colors, border-radius, etc.) is defined entirely via CSS variables in `src/globals.css`:
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @layer base {
   :root {
@@ -150,7 +151,9 @@ s.router(contract.posts, {
 });
 
 // ✅ Client — fully typed query hook
-const { data } = apiClient.posts.list.useQuery(["posts"], { query: { page: 1, limit: 10 } });
+const { data } = apiClient.posts.list.useQuery(['posts'], {
+  query: { page: 1, limit: 10 },
+});
 // data.body → { items: Post[], totalPages: number, ... }
 ```
 

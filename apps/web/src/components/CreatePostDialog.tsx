@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,11 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { apiClient } from "@/lib/api-client";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { apiClient } from '@/lib/api-client';
 
 interface CreatePostDialogProps {
   open: boolean;
@@ -19,17 +20,23 @@ interface CreatePostDialogProps {
   onSuccess: () => void;
 }
 
-export function CreatePostDialog({ open, onOpenChange, onSuccess }: CreatePostDialogProps) {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
+export function CreatePostDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+}: CreatePostDialogProps) {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [errors, setErrors] = useState<{ title?: string; content?: string }>(
+    {},
+  );
 
   const createMutation = apiClient.posts.create.useMutation();
 
   function validate() {
     const errs: typeof errors = {};
-    if (!title.trim()) errs.title = "Title is required";
-    if (!content.trim()) errs.content = "Content is required";
+    if (!title.trim()) errs.title = 'Title is required';
+    if (!content.trim()) errs.content = 'Content is required';
     return errs;
   }
 
@@ -41,9 +48,11 @@ export function CreatePostDialog({ open, onOpenChange, onSuccess }: CreatePostDi
     }
     setErrors({});
 
-    await createMutation.mutateAsync({ body: { title: title.trim(), content: content.trim() } });
-    setTitle("");
-    setContent("");
+    await createMutation.mutateAsync({
+      body: { title: title.trim(), content: content.trim() },
+    });
+    setTitle('');
+    setContent('');
     onOpenChange(false);
     onSuccess();
   }
@@ -53,7 +62,9 @@ export function CreatePostDialog({ open, onOpenChange, onSuccess }: CreatePostDi
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New post</DialogTitle>
-          <DialogDescription>Write something to share with the community.</DialogDescription>
+          <DialogDescription>
+            Write something to share with the community.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -66,7 +77,9 @@ export function CreatePostDialog({ open, onOpenChange, onSuccess }: CreatePostDi
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title}</p>
+            )}
           </div>
 
           {/* Content */}
@@ -79,7 +92,9 @@ export function CreatePostDialog({ open, onOpenChange, onSuccess }: CreatePostDi
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
-            {errors.content && <p className="text-xs text-destructive">{errors.content}</p>}
+            {errors.content && (
+              <p className="text-xs text-destructive">{errors.content}</p>
+            )}
           </div>
         </div>
 
@@ -88,7 +103,7 @@ export function CreatePostDialog({ open, onOpenChange, onSuccess }: CreatePostDi
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={createMutation.isPending}>
-            {createMutation.isPending ? "Publishing…" : "Publish"}
+            {createMutation.isPending ? 'Publishing…' : 'Publish'}
           </Button>
         </DialogFooter>
       </DialogContent>

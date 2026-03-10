@@ -1,15 +1,15 @@
-import { UserButton, useUser } from "@clerk/clerk-react";
-import { FileText, Home, Menu } from "lucide-react";
-import { NavLink, Outlet } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { useClerkApiAuth } from "@/hooks/useClerkApiAuth";
-import { cn } from "@/lib/utils";
+import { NavLink, Outlet } from 'react-router-dom';
+
+import { UserButton, useUser } from '@clerk/clerk-react';
+import { FileText, Home } from 'lucide-react';
+
+import { Separator } from '@/components/ui/separator';
+import { useClerkApiAuth } from '@/hooks/useClerkApiAuth';
+import { cn } from '@/lib/utils';
 
 const navItems = [
-  { to: "/", label: "Home", icon: Home, exact: true },
-  { to: "/posts", label: "Posts", icon: FileText },
+  { to: '/', label: 'Home', icon: Home, exact: true },
+  { to: '/posts', label: 'Posts', icon: FileText },
 ];
 
 export function Layout() {
@@ -30,13 +30,13 @@ export function Layout() {
                 <NavLink
                   key={to}
                   to={to}
-                  end={exact}
+                  end={exact ? true : false}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
+                      'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors',
                       isActive
-                        ? "bg-secondary font-medium text-foreground"
-                        : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
+                        ? 'bg-secondary font-medium text-foreground'
+                        : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground',
                     )
                   }
                 >

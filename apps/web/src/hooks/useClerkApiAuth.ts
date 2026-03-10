@@ -1,6 +1,8 @@
-import { useAuth } from "@clerk/clerk-react";
-import { useEffect } from "react";
-import { setTokenGetter } from "@/lib/api-client";
+import { useEffect } from 'react';
+
+import { useAuth } from '@clerk/clerk-react';
+
+import { setTokenGetter } from '@/lib/api-client';
 
 export function useClerkApiAuth() {
   const { getToken } = useAuth();

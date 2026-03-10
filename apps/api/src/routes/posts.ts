@@ -1,16 +1,18 @@
-import { contract } from "@my-app/contracts";
-import { db, posts } from "@my-app/db";
-import { initServer } from "@ts-rest/fastify";
-import { and, count, eq } from "drizzle-orm";
-import type { FastifyInstance } from "fastify";
-import { requireAuth } from "../plugins/clerk.js";
+import { contract } from '@my-app/contracts';
+import { db, posts } from '@my-app/db';
+import { initServer } from '@ts-rest/fastify';
+import { and, count, eq } from 'drizzle-orm';
+import type { FastifyInstance } from 'fastify';
+
+import { requireAuth } from '../plugins/clerk.js';
 
 const s = initServer();
 
 const postsRouterImpl = s.router(contract.posts, {
   list: async ({ request, reply, query }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
     const { page, limit } = query;
     const offset = (page - 1) * limit;
@@ -28,31 +30,52 @@ const postsRouterImpl = s.router(contract.posts, {
 
   getById: async ({ request, reply, params }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
-    const [post] = await db.select().from(posts).where(eq(posts.id, params.id)).limit(1);
-    if (!post) return { status: 404 as const, body: { message: "Post not found" } };
+    const [post] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, params.id))
+      .limit(1);
+    if (!post)
+      return { status: 404 as const, body: { message: 'Post not found' } };
 
     return { status: 200 as const, body: post };
   },
 
   create: async ({ request, reply, body }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
-    const [post] = await db.insert(posts).values({ ...body, authorId: auth.userId }).returning();
-    if (!post) return { status: 422 as const, body: { message: "Failed to create post" } };
+    const [post] = await db
+      .insert(posts)
+      .values({ ...body, authorId: auth.userId })
+      .returning();
+    if (!post)
+      return {
+        status: 422 as const,
+        body: { message: 'Failed to create post' },
+      };
 
     return { status: 201 as const, body: post };
   },
 
   update: async ({ request, reply, params, body }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
-    const [existing] = await db.select().from(posts).where(eq(posts.id, params.id)).limit(1);
-    if (!existing) return { status: 404 as const, body: { message: "Post not found" } };
-    if (existing.authorId !== auth.userId) return { status: 403 as const, body: { message: "Forbidden" } };
+    const [existing] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, params.id))
+      .limit(1);
+    if (!existing)
+      return { status: 404 as const, body: { message: 'Post not found' } };
+    if (existing.authorId !== auth.userId)
+      return { status: 403 as const, body: { message: 'Forbidden' } };
 
     const [updated] = await db
       .update(posts)
@@ -60,20 +83,30 @@ const postsRouterImpl = s.router(contract.posts, {
       .where(and(eq(posts.id, params.id), eq(posts.authorId, auth.userId)))
       .returning();
 
-    if (!updated) return { status: 404 as const, body: { message: "Post not found" } };
+    if (!updated)
+      return { status: 404 as const, body: { message: 'Post not found' } };
 
     return { status: 200 as const, body: updated };
   },
 
   delete: async ({ request, reply, params }) => {
     const auth = requireAuth(request, reply);
-    if (!auth) return { status: 401 as const, body: { message: "Unauthorized" } };
+    if (!auth)
+      return { status: 401 as const, body: { message: 'Unauthorized' } };
 
-    const [existing] = await db.select().from(posts).where(eq(posts.id, params.id)).limit(1);
-    if (!existing) return { status: 404 as const, body: { message: "Post not found" } };
-    if (existing.authorId !== auth.userId) return { status: 403 as const, body: { message: "Forbidden" } };
+    const [existing] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, params.id))
+      .limit(1);
+    if (!existing)
+      return { status: 404 as const, body: { message: 'Post not found' } };
+    if (existing.authorId !== auth.userId)
+      return { status: 403 as const, body: { message: 'Forbidden' } };
 
-    await db.delete(posts).where(and(eq(posts.id, params.id), eq(posts.authorId, auth.userId)));
+    await db
+      .delete(posts)
+      .where(and(eq(posts.id, params.id), eq(posts.authorId, auth.userId)));
 
     return { status: 200 as const, body: { success: true } };
   },

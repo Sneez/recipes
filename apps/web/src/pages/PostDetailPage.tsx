@@ -1,10 +1,12 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
-import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { apiClient } from "@/lib/api-client";
+import { Link, useNavigate, useParams } from 'react-router-dom';
+
+import { useUser } from '@clerk/clerk-react';
+import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { apiClient } from '@/lib/api-client';
 
 export function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +14,7 @@ export function PostDetailPage() {
   const { user } = useUser();
 
   const { data, isLoading } = apiClient.posts.getById.useQuery(
-    ["posts", id],
+    ['posts', id],
     { params: { id: id! } },
     { enabled: !!id },
   );
@@ -45,9 +47,9 @@ export function PostDetailPage() {
   const isAuthor = user?.id === post.authorId;
 
   async function handleDelete() {
-    if (!confirm("Are you sure you want to delete this post?")) return;
+    if (!confirm('Are you sure you want to delete this post?')) return;
     await deleteMutation.mutateAsync({ params: { id: post.id } });
-    navigate("/posts");
+    navigate('/posts');
   }
 
   return (
@@ -83,10 +85,10 @@ export function PostDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="font-normal">
-              {new Date(post.createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
+              {new Date(post.createdAt).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
               })}
             </Badge>
             {isAuthor && (
@@ -100,7 +102,7 @@ export function PostDetailPage() {
         <Separator />
 
         <div className="prose prose-neutral max-w-none">
-          {post.content.split("\n").map((para, i) =>
+          {post.content.split('\n').map((para, i) =>
             para ? (
               <p key={i} className="leading-7 [&:not(:first-child)]:mt-4">
                 {para}

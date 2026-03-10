@@ -1,13 +1,21 @@
-import { useUser } from "@clerk/clerk-react";
-import { ArrowRight, FileText, User } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiClient } from "@/lib/api-client";
+import { Link } from 'react-router-dom';
+
+import { useUser } from '@clerk/clerk-react';
+import { ArrowRight, FileText, User } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { apiClient } from '@/lib/api-client';
 
 export function HomePage() {
   const { user } = useUser();
-  const { data } = apiClient.users.getMe.useQuery(["me"]);
+  const { data } = apiClient.users.getMe.useQuery(['me']);
   const profile = data?.status === 200 ? data.body : null;
 
   return (
@@ -15,7 +23,7 @@ export function HomePage() {
       {/* Hero */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back{user?.firstName ? `, ${user.firstName}` : ""}!
+          Welcome back{user?.firstName ? `, ${user.firstName}` : ''}!
         </h1>
         <p className="mt-1 text-muted-foreground">
           Here's what's happening in your workspace.
@@ -32,7 +40,9 @@ export function HomePage() {
               </div>
               <CardTitle className="text-base">Posts</CardTitle>
             </div>
-            <CardDescription>Read and create posts shared with the community.</CardDescription>
+            <CardDescription>
+              Read and create posts shared with the community.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild size="sm">
@@ -52,13 +62,16 @@ export function HomePage() {
               <CardTitle className="text-base">Your Profile</CardTitle>
             </div>
             <CardDescription>
-              Signed in as{" "}
-              <span className="font-medium text-foreground">{profile?.email ?? "…"}</span>
+              Signed in as{' '}
+              <span className="font-medium text-foreground">
+                {profile?.email ?? '…'}
+              </span>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Manage your account settings via the avatar menu in the top-right corner.
+              Manage your account settings via the avatar menu in the top-right
+              corner.
             </p>
           </CardContent>
         </Card>

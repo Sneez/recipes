@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 export const UserSchema = z.object({
@@ -23,8 +23,8 @@ export const PostSchema = z.object({
 });
 
 export const CreatePostSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255, "Title too long"),
-  content: z.string().min(1, "Content is required"),
+  title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
+  content: z.string().min(1, 'Content is required'),
 });
 
 export const UpdatePostSchema = CreatePostSchema.partial();

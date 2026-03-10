@@ -1,12 +1,19 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { CreatePostDialog } from "@/components/CreatePostDialog";
-import { apiClient } from "@/lib/api-client";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
+import { ChevronLeft, ChevronRight, Loader2, Plus } from 'lucide-react';
+
+import { CreatePostDialog } from '@/components/CreatePostDialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { apiClient } from '@/lib/api-client';
 
 export function PostsPage() {
   const [page, setPage] = useState(1);
@@ -14,7 +21,7 @@ export function PostsPage() {
   const limit = 10;
 
   const { data, isLoading, isError, refetch } = apiClient.posts.list.useQuery(
-    ["posts", page],
+    ['posts', page],
     { query: { page, limit } },
   );
 
@@ -43,7 +50,7 @@ export function PostsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Posts</h1>
           <p className="text-sm text-muted-foreground">
-            {total} {total === 1 ? "post" : "posts"} total
+            {total} {total === 1 ? 'post' : 'posts'} total
           </p>
         </div>
         <Button onClick={() => setOpen(true)} size="sm">
@@ -58,7 +65,9 @@ export function PostsPage() {
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-16 text-center">
           <p className="font-medium">No posts yet</p>
-          <p className="text-sm text-muted-foreground">Be the first to write one.</p>
+          <p className="text-sm text-muted-foreground">
+            Be the first to write one.
+          </p>
           <Button size="sm" className="mt-2" onClick={() => setOpen(true)}>
             <Plus className="mr-1.5 h-4 w-4" />
             Create post
@@ -67,20 +76,31 @@ export function PostsPage() {
       ) : (
         <div className="space-y-3">
           {items.map((post) => (
-            <Link key={post.id} to={`/posts/${post.id}`} className="block group">
+            <Link
+              key={post.id}
+              to={`/posts/${post.id}`}
+              className="block group"
+            >
               <Card className="transition-colors group-hover:bg-muted/40">
                 <CardHeader className="py-4">
                   <div className="flex items-start justify-between gap-4">
-                    <CardTitle className="text-base group-hover:underline">{post.title}</CardTitle>
-                    <Badge variant="outline" className="shrink-0 text-xs font-normal">
-                      {new Date(post.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
+                    <CardTitle className="text-base group-hover:underline">
+                      {post.title}
+                    </CardTitle>
+                    <Badge
+                      variant="outline"
+                      className="shrink-0 text-xs font-normal"
+                    >
+                      {new Date(post.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
                       })}
                     </Badge>
                   </div>
-                  <CardDescription className="line-clamp-2">{post.content}</CardDescription>
+                  <CardDescription className="line-clamp-2">
+                    {post.content}
+                  </CardDescription>
                 </CardHeader>
               </Card>
             </Link>
@@ -115,7 +135,11 @@ export function PostsPage() {
         </div>
       )}
 
-      <CreatePostDialog open={open} onOpenChange={setOpen} onSuccess={() => void refetch()} />
+      <CreatePostDialog
+        open={open}
+        onOpenChange={setOpen}
+        onSuccess={() => void refetch()}
+      />
     </div>
   );
 }

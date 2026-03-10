@@ -1,7 +1,7 @@
-import { contract } from "@my-app/contracts";
-import { initQueryClient } from "@ts-rest/react-query";
+import { contract } from '@my-app/contracts';
+import { initQueryClient } from '@ts-rest/react-query';
 
-const API_URL = (import.meta.env["VITE_API_URL"] as string | undefined) ?? "";
+const API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? '';
 
 let getToken: (() => Promise<string | null>) | null = null;
 
@@ -21,7 +21,7 @@ export const apiClient = initQueryClient(contract, {
     const response = await fetch(`${API_URL}${path}`, {
       method,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...headers,
         ...authHeaders,
       },
@@ -29,6 +29,10 @@ export const apiClient = initQueryClient(contract, {
     });
 
     const responseBody = await response.json();
-    return { status: response.status, body: responseBody, headers: response.headers };
+    return {
+      status: response.status,
+      body: responseBody,
+      headers: response.headers,
+    };
   },
 });
