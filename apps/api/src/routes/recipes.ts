@@ -63,7 +63,7 @@ const impl = s.router(contract.recipes, {
 
     const [recipe] = await db
       .insert(recipes)
-      .values({ ...body, authorId: auth.userId })
+      .values({ ingredients: [], ...body, authorId: auth.userId })
       .returning();
 
     if (!recipe)

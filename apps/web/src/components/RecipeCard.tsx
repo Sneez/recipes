@@ -7,18 +7,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { RecipeDto } from '@/hooks/use-recipes';
 import { formatMinutes } from '@/lib/utils';
 
-const difficultyVariant: Record<string, BadgeProps['variant']> = {
+const difficultyVariant = {
   easy: 'easy',
   medium: 'medium',
   hard: 'hard',
-};
+} as const satisfies Record<string, BadgeProps['variant']>;
 
 interface RecipeCardProps {
   recipe: RecipeDto;
 }
 
 export function RecipeCard({ recipe }: RecipeCardProps) {
-  const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
+  const totalTime =
+    (recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0);
+  const badgeVariant = difficultyVariant[recipe.difficulty] ?? 'outline';
 
   return (
     <Link to="/recipes/$id" params={{ id: recipe.id }} className="block group">
@@ -30,10 +32,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             <CardTitle className="text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">
               {recipe.title}
             </CardTitle>
-            <Badge
-              variant={difficultyVariant[recipe.difficulty]}
-              className="shrink-0 capitalize"
-            >
+            <Badge variant={badgeVariant} className="shrink-0 capitalize">
               {recipe.difficulty}
             </Badge>
           </div>

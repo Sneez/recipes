@@ -26,7 +26,7 @@ export const recipes = pgTable('recipes', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description').notNull(),
-  ingredients: text('ingredients').array().notNull().default([]),
+  ingredients: text('ingredients').array().notNull(),
   instructions: text('instructions').notNull(),
   prepTimeMinutes: integer('prep_time_minutes').notNull().default(0),
   cookTimeMinutes: integer('cook_time_minutes').notNull().default(0),
