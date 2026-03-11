@@ -23,19 +23,15 @@ export type UserDto = z.infer<typeof selectUserSchema>;
 
 // ── Recipes ───────────────────────────────────────────────────────────────────
 
-export const selectRecipeSchema = createSelectSchema(recipes, {
-  // Coerce date strings coming over the wire back to Date objects
-  createdAt: (s) => s.pipe(z.coerce.date()),
-  updatedAt: (s) => s.pipe(z.coerce.date()),
-});
+export const selectRecipeSchema = createSelectSchema(recipes);
 
-export const insertRecipeSchema = createInsertSchema(recipes, {
-  title: (s) => s.min(2, 'Title must be at least 2 characters').max(255),
-  description: (s) => s.min(10, 'Description must be at least 10 characters'),
-  instructions: (s) => s.min(20, 'Please provide detailed instructions'),
-  prepTimeMinutes: (s) => s.min(0).max(1440),
-  cookTimeMinutes: (s) => s.min(0).max(1440),
-  servings: (s) => s.min(1).max(100),
+export const insertRecipeSchema = createInsertSchema(recipes).extend({
+  title: z.string().min(2, 'Title must be at least 2 characters').max(255),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  instructions: z.string().min(20, 'Please provide detailed instructions'),
+  prepTimeMinutes: z.number().int().min(0).max(1440),
+  cookTimeMinutes: z.number().int().min(0).max(1440),
+  servings: z.number().int().min(1).max(100),
 });
 
 // Shape used for creating a recipe (omit server-set fields)
