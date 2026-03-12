@@ -59,8 +59,9 @@ export const createRecipeSchema = insertRecipeSchema
       .string()
       .url()
       .optional()
+      .nullable()
       .or(z.literal(''))
-      .transform((v) => (v === '' ? undefined : v)),
+      .transform((v) => (v === '' || v === null ? undefined : v)),
   });
 
 // Shape used for updating (all fields optional except id)

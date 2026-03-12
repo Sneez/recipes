@@ -121,7 +121,12 @@ export function RecipeForm({
                 <Textarea
                   placeholder={'200g spaghetti\n2 egg yolks\n50g pecorino…'}
                   rows={4}
-                  {...field}
+                  value={
+                    Array.isArray(field.value)
+                      ? field.value.join('\n')
+                      : (field.value ?? '')
+                  }
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
               </FormControl>
               <FormDescription>One ingredient per line</FormDescription>
