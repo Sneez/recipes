@@ -43,7 +43,24 @@ export const createRecipeSchema = insertRecipeSchema
     updatedAt: true,
   })
   .extend({
-    ingredients: z.array(z.string()).optional().default([]),
+    ingredients: z
+      .union([
+        z.string().transform((s) =>
+          s
+            .split('\n')
+            .map((l) => l.trim())
+            .filter(Boolean),
+        ),
+        z.array(z.string().trim()),
+      ])
+      .optional()
+      .default([]),
+    imageUrl: z
+      .string()
+      .url()
+      .optional()
+      .or(z.literal(''))
+      .transform((v) => (v === '' ? undefined : v)),
   });
 
 // Shape used for updating (all fields optional except id)

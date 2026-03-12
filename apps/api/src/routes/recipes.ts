@@ -1,7 +1,7 @@
 import { contract } from '@recipes/contracts';
 import { db, recipes } from '@recipes/db';
 import { initServer } from '@ts-rest/fastify';
-import { and, count, eq, ilike, or } from 'drizzle-orm';
+import { and, count, eq, ilike, isNull, or } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
 import { requireAuth } from '../plugins/clerk.js';
@@ -38,6 +38,7 @@ const impl = s.router(contract.recipes, {
             ilike(recipes.description, `%${search}%`),
           )
         : undefined,
+      isNull(recipes.deletedAt),
     );
 
     const [items, [{ value: total }]] = await Promise.all([
@@ -134,10 +135,13 @@ const impl = s.router(contract.recipes, {
     if (!existing) return NOT_FOUND;
     if (existing.authorId !== auth.userId) return FORBIDDEN;
 
-    await db
-      .delete(recipes)
-      .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)));
+    const [updated] = await db
+      .update(recipes)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)))
+      .returning();
 
+    if (!updated) return NOT_FOUND;
     return { status: 200 as const, body: { success: true } };
   },
 });
