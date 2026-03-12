@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { CreateRecipeInput } from '@/hooks/use-recipes';
+import type { CreateRecipeInput, RecipeDto } from '@/hooks/use-recipes';
 
 interface RecipeFormProps {
   defaultValues?: Partial<CreateRecipeInput>;
@@ -55,7 +56,25 @@ export function RecipeForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target instanceof HTMLTextAreaElement) {
+            e.preventDefault();
+            const el = e.target;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const value = el.value;
+            const newValue =
+              value.substring(0, start) + '\n' + value.substring(end);
+            el.value = newValue;
+            el.selectionStart = start + 1;
+            el.selectionEnd = start + 1;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }}
+        className="space-y-4"
+      >
         {/* Title */}
         <FormField
           control={form.control}
@@ -104,6 +123,36 @@ export function RecipeForm({
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Ingredients */}
+        <FormField
+          control={form.control}
+          name="ingredients"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ingredients</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={'200g spaghetti\n2 egg yolks\n50g pecorino…'}
+                  rows={4}
+                  value={
+                    Array.isArray(field.value) ? field.value.join('\n') : ''
+                  }
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value
+                        .split('\n')
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    )
+                  }
+                />
+              </FormControl>
+              <FormDescription>One ingredient per line</FormDescription>
               <FormMessage />
             </FormItem>
           )}

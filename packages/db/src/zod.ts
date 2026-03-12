@@ -35,12 +35,16 @@ export const insertRecipeSchema = createInsertSchema(recipes).extend({
 });
 
 // Shape used for creating a recipe (omit server-set fields)
-export const createRecipeSchema = insertRecipeSchema.omit({
-  id: true,
-  authorId: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createRecipeSchema = insertRecipeSchema
+  .omit({
+    id: true,
+    authorId: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    ingredients: z.array(z.string()).optional().default([]),
+  });
 
 // Shape used for updating (all fields optional except id)
 export const updateRecipeSchema = createRecipeSchema.partial();

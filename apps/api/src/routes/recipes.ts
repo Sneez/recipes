@@ -8,11 +8,23 @@ import { requireAuth } from '../plugins/clerk.js';
 
 const s = initServer();
 
+const UNAUTH = {
+  status: 401 as const,
+  body: { message: 'Unauthorized recipes' },
+};
+const FORBIDDEN = { status: 403 as const, body: { message: 'Forbidden' } };
+const NOT_FOUND = {
+  status: 404 as const,
+  body: { message: 'Recipe not found' },
+};
+
 const impl = s.router(contract.recipes, {
-  list: async ({ request, reply, query }) => {
-    const auth = requireAuth(request, reply);
-    if (!auth)
-      return { status: 401 as const, body: { message: 'Unauthorized' } };
+  list: async ({ request, query }) => {
+    try {
+      requireAuth(request);
+    } catch {
+      return UNAUTH;
+    }
 
     const { page, limit, search, cuisine, difficulty } = query;
     const offset = (page - 1) * limit;
@@ -39,27 +51,31 @@ const impl = s.router(contract.recipes, {
     };
   },
 
-  getById: async ({ request, reply, params }) => {
-    const auth = requireAuth(request, reply);
-    if (!auth)
-      return { status: 401 as const, body: { message: 'Unauthorized' } };
+  getById: async ({ request, params }) => {
+    try {
+      requireAuth(request);
+    } catch {
+      return UNAUTH;
+    }
 
     const [recipe] = await db
       .select()
       .from(recipes)
       .where(eq(recipes.id, params.id))
       .limit(1);
-
-    if (!recipe)
-      return { status: 404 as const, body: { message: 'Recipe not found' } };
+    if (!recipe) return NOT_FOUND;
 
     return { status: 200 as const, body: recipe };
   },
 
-  create: async ({ request, reply, body }) => {
-    const auth = requireAuth(request, reply);
-    if (!auth)
-      return { status: 401 as const, body: { message: 'Unauthorized' } };
+  create: async ({ request, body }) => {
+    request.log.info({ body }, 'create recipe request body');
+    let auth;
+    try {
+      auth = requireAuth(request);
+    } catch {
+      return UNAUTH;
+    }
 
     const [recipe] = await db
       .insert(recipes)
@@ -75,21 +91,21 @@ const impl = s.router(contract.recipes, {
     return { status: 201 as const, body: recipe };
   },
 
-  update: async ({ request, reply, params, body }) => {
-    const auth = requireAuth(request, reply);
-    if (!auth)
-      return { status: 401 as const, body: { message: 'Unauthorized' } };
+  update: async ({ request, params, body }) => {
+    let auth;
+    try {
+      auth = requireAuth(request);
+    } catch {
+      return UNAUTH;
+    }
 
     const [existing] = await db
       .select()
       .from(recipes)
       .where(eq(recipes.id, params.id))
       .limit(1);
-
-    if (!existing)
-      return { status: 404 as const, body: { message: 'Recipe not found' } };
-    if (existing.authorId !== auth.userId)
-      return { status: 403 as const, body: { message: 'Forbidden' } };
+    if (!existing) return NOT_FOUND;
+    if (existing.authorId !== auth.userId) return FORBIDDEN;
 
     const [updated] = await db
       .update(recipes)
@@ -97,27 +113,26 @@ const impl = s.router(contract.recipes, {
       .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)))
       .returning();
 
-    if (!updated)
-      return { status: 404 as const, body: { message: 'Recipe not found' } };
+    if (!updated) return NOT_FOUND;
 
     return { status: 200 as const, body: updated };
   },
 
-  delete: async ({ request, reply, params }) => {
-    const auth = requireAuth(request, reply);
-    if (!auth)
-      return { status: 401 as const, body: { message: 'Unauthorized' } };
+  delete: async ({ request, params }) => {
+    let auth;
+    try {
+      auth = requireAuth(request);
+    } catch {
+      return UNAUTH;
+    }
 
     const [existing] = await db
       .select()
       .from(recipes)
       .where(eq(recipes.id, params.id))
       .limit(1);
-
-    if (!existing)
-      return { status: 404 as const, body: { message: 'Recipe not found' } };
-    if (existing.authorId !== auth.userId)
-      return { status: 403 as const, body: { message: 'Forbidden' } };
+    if (!existing) return NOT_FOUND;
+    if (existing.authorId !== auth.userId) return FORBIDDEN;
 
     await db
       .delete(recipes)

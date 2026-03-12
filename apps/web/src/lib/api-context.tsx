@@ -1,30 +1,27 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext } from 'react';
 
 import { useAuth } from '@clerk/clerk-react';
 
-import { type ApiClient, createApiClient } from '@/lib/api-client';
+import { type ApiClient, apiClient, setTokenGetter } from '@/lib/api-client';
 
-const ApiContext = createContext<ApiClient | null>(null);
+const ApiContext = createContext<ApiClient>(apiClient);
 
 export function ApiProvider({ children }: { children: React.ReactNode }) {
   const { getToken } = useAuth();
 
-  const client = useMemo(
-    () => createApiClient(() => getToken()),
-    // getToken identity is stable per Clerk session
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+  // Update the module-level token getter on every render so it always
+  // reflects the current Clerk session — no refs or memos needed.
+  setTokenGetter(getToken);
 
-  return <ApiContext.Provider value={client}>{children}</ApiContext.Provider>;
+  return (
+    <ApiContext.Provider value={apiClient}>{children}</ApiContext.Provider>
+  );
 }
 
 /**
  * useApi() — the single entry-point for every hook that needs to call the API.
- * Never call createApiClient() directly in hooks or components.
+ * Never call apiClient directly in hooks or components.
  */
 export function useApi(): ApiClient {
-  const ctx = useContext(ApiContext);
-  if (!ctx) throw new Error('useApi must be used inside <ApiProvider>');
-  return ctx;
+  return useContext(ApiContext);
 }

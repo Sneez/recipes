@@ -1,23 +1,34 @@
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
 import 'dotenv/config';
-import Fastify from 'fastify';
 
-import { clerkPlugin } from './plugins/clerk.js';
-import { recipesRouter } from './routes/recipes.js';
-import { usersRouter } from './routes/users.js';
+// Dynamic imports ensure dotenv has populated process.env before any
+// plugin module is evaluated. Static ESM imports are hoisted and may
+// evaluate before dotenv/config runs, causing "X is required" throws.
+async function main() {
+  const [
+    { default: Fastify },
+    { default: cors },
+    { default: helmet },
+    { clerkPlugin },
+    { recipesRouter },
+    { usersRouter },
+  ] = await Promise.all([
+    import('fastify'),
+    import('@fastify/cors'),
+    import('@fastify/helmet'),
+    import('./plugins/clerk.js'),
+    import('./routes/recipes.js'),
+    import('./routes/users.js'),
+  ]);
 
-const HOST = process.env['API_HOST'] ?? '0.0.0.0';
-const PORT = Number(process.env['API_PORT'] ?? 3000);
+  const HOST = process.env['API_HOST'] ?? '0.0.0.0';
+  const PORT = Number(process.env['API_PORT'] ?? 3000);
 
-async function buildApp() {
   const app = Fastify({
     logger: {
       level: process.env['NODE_ENV'] === 'production' ? 'info' : 'debug',
-      transport:
-        process.env['NODE_ENV'] !== 'production'
-          ? { target: 'pino-pretty' }
-          : undefined,
+      ...(process.env['NODE_ENV'] !== 'production'
+        ? { transport: { target: 'pino-pretty' } }
+        : {}),
     },
   });
 
@@ -36,11 +47,14 @@ async function buildApp() {
     timestamp: new Date().toISOString(),
   }));
 
-  return app;
-}
+  app.setErrorHandler((error, request, reply) => {
+    request.log.error({ err: error, body: request.body }, 'request error');
+    void reply.status(error.statusCode ?? 500).send({
+      message: error.message,
+      code: error.code,
+    });
+  });
 
-async function start() {
-  const app = await buildApp();
   try {
     await app.listen({ host: HOST, port: PORT });
     console.log(`🍳 Recipes API listening on http://${HOST}:${PORT}`);
@@ -50,4 +64,4 @@ async function start() {
   }
 }
 
-start();
+main();
