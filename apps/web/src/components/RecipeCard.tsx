@@ -24,9 +24,19 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
 
   return (
     <Link to="/recipes/$id" params={{ id: recipe.id }} className="block group">
-      <Card className="h-full transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md">
-        {/* Decorative top stripe */}
-        <div className="h-1.5 w-full rounded-t-lg bg-accent opacity-70" />
+      <Card className="h-full transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md overflow-hidden">
+        {/* Image or decorative stripe */}
+        {recipe.imageUrl ? (
+          <div className="w-full aspect-video overflow-hidden">
+            <img
+              src={recipe.imageUrl}
+              alt={recipe.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        ) : (
+          <div className="h-1.5 w-full bg-accent opacity-70" />
+        )}
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">

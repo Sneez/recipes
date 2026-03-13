@@ -16,6 +16,7 @@ function RecipeDetailSkeleton() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Skeleton className="h-5 w-28" />
+      <Skeleton className="w-full aspect-video rounded-xl" />
       <div className="space-y-3">
         <Skeleton className="h-10 w-3/4" />
         <div className="flex gap-2">
@@ -80,6 +81,17 @@ export function RecipeDetailPage() {
           All Recipes
         </Link>
       </Button>
+
+      {/* Hero image */}
+      {recipe.imageUrl && (
+        <div className="w-full aspect-video rounded-xl overflow-hidden">
+          <img
+            src={recipe.imageUrl}
+            alt={recipe.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
 
       {/* Header */}
       <div className="space-y-3">

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRecipeSchema } from '@recipes/db/zod';
 
+import { ImageUpload } from '@/components/ImageUpload';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -257,6 +258,24 @@ export function RecipeForm({
             )}
           />
         </div>
+
+        {/* Image */}
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image</FormLabel>
+              <FormControl>
+                <ImageUpload
+                  value={field.value ?? null}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="submit" disabled={isPending}>

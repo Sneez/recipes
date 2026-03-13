@@ -11,6 +11,8 @@ async function main() {
     { clerkPlugin },
     { recipesRouter },
     { usersRouter },
+    { createRouteHandler },
+    { uploadRouter },
   ] = await Promise.all([
     import('fastify'),
     import('@fastify/cors'),
@@ -18,6 +20,8 @@ async function main() {
     import('./plugins/clerk.js'),
     import('./routes/recipes.js'),
     import('./routes/users.js'),
+    import('uploadthing/fastify'),
+    import('./plugins/uploadthing.js'),
   ]);
 
   const HOST = process.env['API_HOST'] ?? '0.0.0.0';
@@ -41,6 +45,10 @@ async function main() {
   await app.register(clerkPlugin);
   await app.register(usersRouter);
   await app.register(recipesRouter);
+  await app.register(createRouteHandler, {
+    router: uploadRouter,
+    config: { token: process.env['UPLOADTHING_TOKEN'] ?? '' },
+  });
 
   app.get('/health', async () => ({
     status: 'ok',
