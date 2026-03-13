@@ -19,6 +19,7 @@ A full-stack TypeScript monorepo for a recipe management app.
 | Zod schemas   | drizzle-zod (auto-generated from schema) |
 | Database      | PostgreSQL (Docker)                      |
 | Auth          | Clerk                                    |
+| File uploads  | UploadThing                              |
 | Monorepo      | pnpm workspaces + Turborepo              |
 
 ## Project Structure
@@ -30,7 +31,9 @@ A full-stack TypeScript monorepo for a recipe management app.
 │   ├── api/                    # Fastify server
 │   │   └── src/
 │   │       ├── index.ts        # tsx watch entry
-│   │       ├── plugins/clerk.ts
+│   │       ├── plugins/
+│   │       │   ├── clerk.ts
+│   │       │   └── uploadthing.ts
 │   │       └── routes/
 │   │           ├── users.ts
 │   │           └── recipes.ts
@@ -42,7 +45,8 @@ A full-stack TypeScript monorepo for a recipe management app.
 │           │   └── recipes.$id.tsx
 │           ├── pages/          # Page components (one per route)
 │           ├── components/
-│           │   └── ui/         # shadcn/ui primitives
+│           │   ├── ImageUpload.tsx  ← UploadThing upload widget
+│           │   └── ui/             # shadcn/ui primitives
 │           ├── hooks/
 │           │   ├── use-recipes.ts   ← all recipe data logic
 │           │   └── use-auth.ts      ← all auth hooks
@@ -83,31 +87,67 @@ them, components import from hooks.
 
 - Node.js ≥ 20, pnpm ≥ 9, Docker
 
-### Setup
+### 1. Install dependencies
 
 ```bash
 # Install from the root (required for workspace:* links)
 pnpm install
+```
 
-# Copy env and fill in Clerk keys
+### 2. Set up Clerk
+
+1. Create an account at [clerk.com](https://clerk.com) and create a new application
+2. From the Clerk dashboard, copy your **Publishable Key** and **Secret Key**
+
+### 3. Set up UploadThing
+
+1. Create an account at [uploadthing.com](https://uploadthing.com) and create a new app
+2. From the UploadThing dashboard, go to **API Keys** and copy your **Token**
+
+### 4. Configure environment variables
+
+```bash
 cp .env.example .env
 ```
 
-### Start Postgres
+Open `.env` and fill in all values:
+
+```bash
+# PostgreSQL
+DATABASE_URL="postgresql://recipes:recipes@localhost:5432/recipes"
+
+# Clerk — from dashboard.clerk.com
+CLERK_SECRET_KEY="sk_test_..."
+CLERK_PUBLISHABLE_KEY="pk_test_..."
+
+# UploadThing — from uploadthing.com dashboard → API Keys
+UPLOADTHING_TOKEN="eyJhcGlLZXkiOi..."
+
+# API server
+API_PORT=3000
+API_HOST=0.0.0.0
+WEB_URL=http://localhost:5173
+
+# Web (Vite – must be prefixed VITE_)
+VITE_CLERK_PUBLISHABLE_KEY="pk_test_..."   # same value as CLERK_PUBLISHABLE_KEY
+VITE_API_URL="http://localhost:3000"
+```
+
+### 5. Start Postgres
 
 ```bash
 pnpm docker:up
 # or: docker compose up -d
 ```
 
-### Database migrations
+### 6. Run database migrations
 
 ```bash
 pnpm db:generate   # generate SQL from Drizzle schema
 pnpm db:migrate    # apply to Postgres
 ```
 
-### Development
+### 7. Start development servers
 
 ```bash
 pnpm dev
