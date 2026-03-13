@@ -1,11 +1,11 @@
-import { createClerkClient, verifyToken } from '@clerk/backend';
+import { createClerkClient } from '@clerk/backend';
 import { config } from 'dotenv';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { resolve } from 'path';
 
-// Load from the monorepo root regardless of which directory the command runs from
-config({ path: resolve(import.meta.dirname, '../../../../.env') });
+// Load from the .env from the api root
+config({ path: resolve(import.meta.dirname, '../../../.env') });
 if (!process.env['CLERK_SECRET_KEY']) {
   throw new Error('CLERK_SECRET_KEY is required');
 }

@@ -107,29 +107,32 @@ pnpm install
 ### 4. Configure environment variables
 
 ```bash
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
 ```
 
-Open `.env` and fill in all values:
+**`apps/api/.env`:**
 
 ```bash
-# PostgreSQL
 DATABASE_URL="postgresql://recipes:recipes@localhost:5432/recipes"
 
-# Clerk — from dashboard.clerk.com
+# Clerk — from dashboard.clerk.com → API Keys
 CLERK_SECRET_KEY="sk_test_..."
 CLERK_PUBLISHABLE_KEY="pk_test_..."
 
-# UploadThing — from uploadthing.com dashboard → API Keys
+# UploadThing — from uploadthing.com → your app → API Keys
 UPLOADTHING_TOKEN="eyJhcGlLZXkiOi..."
 
-# API server
 API_PORT=3000
 API_HOST=0.0.0.0
 WEB_URL=http://localhost:5173
+```
 
-# Web (Vite – must be prefixed VITE_)
-VITE_CLERK_PUBLISHABLE_KEY="pk_test_..."   # same value as CLERK_PUBLISHABLE_KEY
+**`apps/web/.env`:**
+
+```bash
+# Same value as CLERK_PUBLISHABLE_KEY above — must be VITE_ prefixed for the browser
+VITE_CLERK_PUBLISHABLE_KEY="pk_test_..."
 VITE_API_URL="http://localhost:3000"
 ```
 

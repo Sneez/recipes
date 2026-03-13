@@ -1,4 +1,9 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+config({ path: resolve(__dirname, '../.env') });
 
 // Dynamic imports ensure dotenv has populated process.env before any
 // plugin module is evaluated. Static ESM imports are hoisted and may

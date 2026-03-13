@@ -13,7 +13,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  envDir: '../../',
+  envDir: './',
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
