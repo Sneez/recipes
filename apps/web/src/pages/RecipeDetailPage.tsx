@@ -1,4 +1,5 @@
 import { useUser } from '@clerk/clerk-react';
+import { difficultyEnum } from '@recipes/db/enums';
 import { Link, useParams } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Clock, Loader2, Pencil, Trash2, Users } from 'lucide-react';
@@ -11,6 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDeleteRecipe, useRecipe } from '@/hooks/use-recipes';
 import { formatMinutes } from '@/lib/utils';
 import { useRecipeUiStore } from '@/store/recipe-ui.store';
+
+type Difficulty = (typeof difficultyEnum.enumValues)[number];
 
 function RecipeDetailSkeleton() {
   return (
@@ -133,7 +136,7 @@ export function RecipeDetailPage() {
         {/* Meta badges */}
         <div className="flex flex-wrap items-center gap-2">
           <Badge
-            variant={recipe.difficulty as 'easy' | 'medium' | 'hard'}
+            variant={recipe.difficulty as Difficulty}
             className="capitalize"
           >
             {recipe.difficulty}

@@ -1,3 +1,4 @@
+import { difficultyEnum } from '@recipes/db/enums';
 import { Link } from '@tanstack/react-router';
 import { Clock, Users } from 'lucide-react';
 
@@ -7,11 +8,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { RecipeDto } from '@/hooks/use-recipes';
 import { formatMinutes } from '@/lib/utils';
 
-const difficultyVariant = {
-  easy: 'easy',
-  medium: 'medium',
-  hard: 'hard',
-} as const satisfies Record<string, BadgeProps['variant']>;
+// Derived directly from the schema enum — no duplication of values
+const difficultyVariant = Object.fromEntries(
+  difficultyEnum.enumValues.map((v) => [v, v]),
+) as Record<(typeof difficultyEnum.enumValues)[number], BadgeProps['variant']>;
 
 interface RecipeCardProps {
   recipe: RecipeDto;

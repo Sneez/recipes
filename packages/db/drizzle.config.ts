@@ -3,7 +3,7 @@ import type { Config } from 'drizzle-kit';
 import { resolve } from 'path';
 
 // Load from the monorepo root regardless of which directory the command runs from
-config({ path: resolve(__dirname, '../../.env') });
+config({ path: resolve(__dirname, '../../apps/api/.env') });
 
 // DATABASE_URL is only required for commands that connect to the database
 // (migrate, studio, push). `drizzle-kit generate` only reads schema files.

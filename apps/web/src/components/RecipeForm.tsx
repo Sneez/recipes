@@ -1,7 +1,9 @@
 import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cuisineEnum, difficultyEnum } from '@recipes/db/enums';
 import { createRecipeSchema } from '@recipes/db/zod';
+import { z } from 'zod';
 
 import { ImageUpload } from '@/components/ImageUpload';
 import { Button } from '@/components/ui/button';
@@ -23,10 +25,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { CreateRecipeInput } from '@/hooks/use-recipes';
+import type { CreateRecipeInput, RecipeDto } from '@/hooks/use-recipes';
+
+// Internal form schema — ingredients is a plain string; Zod transforms it to string[] on submit
+const recipeFormSchema = createRecipeSchema.extend({
+  ingredients: z.string().optional().default(''),
+});
+type RecipeFormValues = z.input<typeof recipeFormSchema>;
 
 interface RecipeFormProps {
-  defaultValues?: Partial<CreateRecipeInput>;
+  defaultValues?: Partial<RecipeDto>;
   onSubmit: (data: CreateRecipeInput) => void;
   isPending: boolean;
   submitLabel?: string;
@@ -38,26 +46,44 @@ export function RecipeForm({
   isPending,
   submitLabel = 'Save',
 }: RecipeFormProps) {
-  const form = useForm<CreateRecipeInput>({
-    resolver: zodResolver(createRecipeSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      instructions: '',
-      ingredients: [],
-      prepTimeMinutes: 10,
-      cookTimeMinutes: 20,
-      servings: 4,
-      difficulty: 'medium',
-      cuisine: 'other',
-      imageUrl: undefined,
-      ...defaultValues,
-    },
+  const form = useForm<RecipeFormValues>({
+    resolver: zodResolver(recipeFormSchema),
+    defaultValues: (() => {
+      const {
+        id: _id,
+        authorId: _a,
+        createdAt: _c,
+        updatedAt: _u,
+        deletedAt: _d,
+        ...rest
+      } = (defaultValues ?? {}) as Partial<RecipeDto>;
+      return {
+        title: '',
+        description: '',
+        instructions: '',
+        ingredients: '',
+        prepTimeMinutes: 10,
+        cookTimeMinutes: 20,
+        servings: 4,
+        difficulty: 'medium' as const,
+        cuisine: 'other' as const,
+        imageUrl: undefined,
+        ...rest,
+        ingredients: Array.isArray(rest.ingredients)
+          ? rest.ingredients.join('\n')
+          : (rest.ingredients ?? ''),
+      };
+    })(),
   });
+
+  const handleSubmit = (values: RecipeFormValues) => {
+    const parsed = createRecipeSchema.parse(values);
+    onSubmit(parsed);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         {/* Title */}
         <FormField
           control={form.control}
@@ -212,9 +238,11 @@ export function RecipeForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
+                    {difficultyEnum.enumValues.map((d) => (
+                      <SelectItem key={d} value={d} className="capitalize">
+                        {d.charAt(0).toUpperCase() + d.slice(1)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -237,16 +265,7 @@ export function RecipeForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {[
-                      'italian',
-                      'mexican',
-                      'asian',
-                      'american',
-                      'french',
-                      'mediterranean',
-                      'indian',
-                      'other',
-                    ].map((c) => (
+                    {cuisineEnum.enumValues.map((c) => (
                       <SelectItem key={c} value={c} className="capitalize">
                         {c.charAt(0).toUpperCase() + c.slice(1)}
                       </SelectItem>

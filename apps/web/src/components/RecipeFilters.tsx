@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { cuisineEnum, difficultyEnum } from '@recipes/db/enums';
 import { Search, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -68,16 +69,7 @@ export function RecipeFilters() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All cuisines</SelectItem>
-            {[
-              'italian',
-              'mexican',
-              'asian',
-              'american',
-              'french',
-              'mediterranean',
-              'indian',
-              'other',
-            ].map((c) => (
+            {cuisineEnum.enumValues.map((c) => (
               <SelectItem key={c} value={c} className="capitalize">
                 {c.charAt(0).toUpperCase() + c.slice(1)}
               </SelectItem>
@@ -99,9 +91,11 @@ export function RecipeFilters() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Any level</SelectItem>
-            <SelectItem value="easy">Easy</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="hard">Hard</SelectItem>
+            {difficultyEnum.enumValues.map((d) => (
+              <SelectItem key={d} value={d} className="capitalize">
+                {d.charAt(0).toUpperCase() + d.slice(1)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 

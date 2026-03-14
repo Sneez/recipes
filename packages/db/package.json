@@ -1,17 +1,27 @@
 {
   "name": "@recipes/db",
-  "main": "./src/index.ts",
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "main": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./zod": "./src/zod.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./zod": {
+      "types": "./src/zod.ts",
+      "default": "./src/zod.ts"
+    },
+    "./enums": {
+      "types": "./src/enums.ts",
+      "default": "./src/enums.ts"
+    }
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
+    "db:migrate": "dotenv -e ../../apps/api/.env -- drizzle-kit migrate",
+    "db:studio": "dotenv -e ../../apps/api/.env -- drizzle-kit studio",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -22,8 +32,9 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "dotenv-cli": "^7.4.0",
     "drizzle-kit": "^0.21.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
   }
 }
