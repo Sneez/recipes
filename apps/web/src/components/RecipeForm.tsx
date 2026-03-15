@@ -229,7 +229,9 @@ export function RecipeForm({
                 <FormLabel>Difficulty</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  {...(field.value !== undefined
+                    ? { defaultValue: field.value }
+                    : {})}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -256,7 +258,9 @@ export function RecipeForm({
                 <FormLabel>Cuisine</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  {...(field.value !== undefined
+                    ? { defaultValue: field.value }
+                    : {})}
                 >
                   <FormControl>
                     <SelectTrigger>

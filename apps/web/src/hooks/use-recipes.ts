@@ -134,7 +134,7 @@ export function useUpdateRecipe() {
       body,
     }: {
       id: string;
-      body: Parameters<typeof api.recipes.update>[0]['body'];
+      body: NonNullable<Parameters<typeof api.recipes.update>[0]['body']>;
     }) => {
       const res = await api.recipes.update({ params: { id }, body });
       if (res.status !== 200) throw new Error(extractError(res.body));
