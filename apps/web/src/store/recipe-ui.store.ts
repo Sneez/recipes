@@ -5,6 +5,7 @@ interface RecipeFilters {
   search: string;
   cuisine: RecipeListQuery['cuisine'];
   difficulty: RecipeListQuery['difficulty'];
+  excludeMine: boolean;
 }
 
 interface RecipeUiState {
@@ -12,6 +13,7 @@ interface RecipeUiState {
   setSearch: (search: string) => void;
   setCuisine: (cuisine: RecipeFilters['cuisine']) => void;
   setDifficulty: (difficulty: RecipeFilters['difficulty']) => void;
+  setExcludeMine: (excludeMine: boolean) => void;
   resetFilters: () => void;
 
   // Create/edit dialog
@@ -26,6 +28,7 @@ const defaultFilters: RecipeFilters = {
   search: '',
   cuisine: undefined,
   difficulty: undefined,
+  excludeMine: false,
 };
 
 export const useRecipeUiStore = create<RecipeUiState>((set) => ({
@@ -34,6 +37,8 @@ export const useRecipeUiStore = create<RecipeUiState>((set) => ({
   setCuisine: (cuisine) => set((s) => ({ filters: { ...s.filters, cuisine } })),
   setDifficulty: (difficulty) =>
     set((s) => ({ filters: { ...s.filters, difficulty } })),
+  setExcludeMine: (excludeMine) =>
+    set((s) => ({ filters: { ...s.filters, excludeMine } })),
   resetFilters: () => set({ filters: defaultFilters }),
 
   createDialogOpen: false,

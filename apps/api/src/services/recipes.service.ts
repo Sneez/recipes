@@ -7,7 +7,7 @@ import {
 import { created, ok } from '@api/lib/ts-rest-helpers';
 import { db, recipes } from '@recipes/db';
 import type { CreateRecipeInput, UpdateRecipeInput } from '@recipes/db/zod';
-import { and, count, eq, ilike, isNull, or } from 'drizzle-orm';
+import { and, count, eq, ilike, isNull, not, or } from 'drizzle-orm';
 
 export const notDeleted = isNull(recipes.deletedAt);
 
@@ -19,15 +19,27 @@ export async function listRecipes(
     search?: string | undefined;
     cuisine?: string | undefined;
     difficulty?: string | undefined;
+    authorId?: string | undefined;
+    excludeAuthorId?: string | undefined;
   },
 ) {
   if (!userId) return unauthorized();
 
-  const { page, limit, search, cuisine, difficulty } = query;
+  const {
+    page,
+    limit,
+    search,
+    cuisine,
+    difficulty,
+    authorId,
+    excludeAuthorId,
+  } = query;
   const offset = (page - 1) * limit;
 
   const filters = and(
     notDeleted,
+    authorId ? eq(recipes.authorId, authorId) : undefined,
+    excludeAuthorId ? not(eq(recipes.authorId, excludeAuthorId)) : undefined,
     cuisine
       ? eq(recipes.cuisine, cuisine as typeof recipes.cuisine._.data)
       : undefined,

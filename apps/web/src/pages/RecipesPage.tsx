@@ -7,12 +7,14 @@ import { EditRecipeDialog } from '@/components/EditRecipeDialog';
 import { RecipeCard, RecipeCardSkeleton } from '@/components/RecipeCard';
 import { RecipeFilters } from '@/components/RecipeFilters';
 import { Button } from '@/components/ui/button';
+import { useCurrentUserId } from '@/hooks/use-auth';
 import { useRecipes } from '@/hooks/use-recipes';
 import { useRecipeUiStore } from '@/store/recipe-ui.store';
 
 export function RecipesPage() {
   const [page, setPage] = useState(1);
   const { filters } = useRecipeUiStore();
+  const { userId } = useCurrentUserId();
 
   const { data, isLoading, isFetching } = useRecipes({
     page,
@@ -20,6 +22,7 @@ export function RecipesPage() {
     search: filters.search || undefined,
     cuisine: filters.cuisine,
     difficulty: filters.difficulty,
+    ...(filters.excludeMine && userId ? { excludeAuthorId: userId } : {}),
   });
 
   const recipes = data?.items ?? [];
@@ -47,7 +50,7 @@ export function RecipesPage() {
       </div>
 
       {/* Filters */}
-      <RecipeFilters />
+      <RecipeFilters showExcludeMine />
 
       {/* Grid — skeletons while loading */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

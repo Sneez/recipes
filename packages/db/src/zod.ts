@@ -77,6 +77,8 @@ export const recipeListQuerySchema = z.object({
   search: z.string().optional(),
   cuisine: selectRecipeSchema.shape.cuisine.optional(),
   difficulty: selectRecipeSchema.shape.difficulty.optional(),
+  authorId: z.string().optional(),
+  excludeAuthorId: z.string().optional(),
 });
 
 export type RecipeDto = z.infer<typeof selectRecipeSchema>;

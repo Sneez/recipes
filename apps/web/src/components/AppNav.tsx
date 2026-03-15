@@ -29,6 +29,12 @@ export function AppNav() {
             >
               Browse
             </Link>
+            <Link
+              to="/my-recipes"
+              className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground [&.active]:bg-secondary [&.active]:font-medium [&.active]:text-foreground"
+            >
+              My Recipes
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-3">

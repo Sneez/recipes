@@ -24,12 +24,17 @@ function useDebounce<T>(value: T, ms = 350): T {
   return debounced;
 }
 
-export function RecipeFilters() {
+interface RecipeFiltersProps {
+  showExcludeMine?: boolean;
+}
+
+export function RecipeFilters({ showExcludeMine = false }: RecipeFiltersProps) {
   const {
     filters,
     setSearch,
     setCuisine,
     setDifficulty,
+    setExcludeMine,
     resetFilters,
     openCreateDialog,
   } = useRecipeUiStore();
@@ -41,11 +46,15 @@ export function RecipeFilters() {
     setSearch(debouncedSearch);
   }, [debouncedSearch, setSearch]);
 
-  const hasFilters = filters.search || filters.cuisine || filters.difficulty;
+  const hasFilters =
+    filters.search ||
+    filters.cuisine ||
+    filters.difficulty ||
+    filters.excludeMine;
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-1 items-center gap-2">
+      <div className="flex flex-1 flex-wrap items-center gap-2">
         {/* Search */}
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -98,6 +107,20 @@ export function RecipeFilters() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Exclude mine toggle — only shown on browse page */}
+        {showExcludeMine && (
+          <Button
+            variant={filters.excludeMine ? 'secondary' : 'outline'}
+            size="sm"
+            onClick={() => setExcludeMine(!filters.excludeMine)}
+            className="shrink-0"
+          >
+            {filters.excludeMine
+              ? "Showing others' recipes"
+              : 'Exclude my recipes'}
+          </Button>
+        )}
 
         {hasFilters && (
           <Button

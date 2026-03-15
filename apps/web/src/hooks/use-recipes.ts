@@ -22,6 +22,7 @@ import {
 } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useCurrentUserId } from '@/hooks/use-auth';
 import { useApi } from '@/lib/api-context';
 
 // ── Type re-exports ───────────────────────────────────────────────────────────
@@ -76,6 +77,28 @@ export function useRecipes(query: Partial<RecipeListQuery> = {}) {
       return res.body;
     },
     placeholderData: keepPreviousData,
+  });
+}
+
+/**
+ * Same as useRecipes but scoped to the current user's recipes.
+ */
+export function useMyRecipes(
+  query: Partial<Omit<RecipeListQuery, 'authorId'>> = {},
+) {
+  const api = useApi();
+  const { userId } = useCurrentUserId();
+  const fullQuery = { ...query, ...(userId ? { authorId: userId } : {}) };
+
+  return useQuery({
+    queryKey: recipeKeys.list(fullQuery),
+    queryFn: async () => {
+      const res = await api.recipes.list({ query: fullQuery });
+      if (res.status !== 200) throw new Error(extractError(res.body));
+      return res.body;
+    },
+    placeholderData: keepPreviousData,
+    enabled: !!userId,
   });
 }
 
@@ -161,7 +184,7 @@ export function useDeleteRecipe() {
   return useMutation({
     mutationFn: async (id: string) => {
       const res = await api.recipes.delete({ params: { id } });
-      if (res.status !== 200) throw new Error(extractError(res.body));
+      if (res.status !== 200) throw new Error('Failed to delete recipe');
       return id;
     },
     onSuccess: (id) => {
