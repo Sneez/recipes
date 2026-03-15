@@ -1,13 +1,6 @@
-import {
-  integer,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core';
+import { integer, pgEnum, pgTable, text, varchar } from 'drizzle-orm/pg-core';
 
+import { createdAt, deletedAt, id, updatedAt } from '../columns';
 import { users } from './users';
 
 export const difficultyEnum = pgEnum('difficulty', ['easy', 'medium', 'hard']);
@@ -23,7 +16,7 @@ export const cuisineEnum = pgEnum('cuisine', [
 ]);
 
 export const recipes = pgTable('recipes', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: id(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description').notNull(),
   ingredients: text('ingredients').array().notNull(),
@@ -37,9 +30,9 @@ export const recipes = pgTable('recipes', {
   authorId: varchar('author_id', { length: 255 })
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  deletedAt: timestamp('deleted_at'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+  deletedAt: deletedAt(),
 });
 
 export type Recipe = typeof recipes.$inferSelect;
