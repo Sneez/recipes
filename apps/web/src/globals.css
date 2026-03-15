@@ -58,6 +58,37 @@
     font-family: var(--font-display);
     line-height: 1.2;
   }
+
+  /* Dark mode overrides — activated by .dark on <html> */
+  .dark {
+    --color-background: hsl(222 20% 10%);
+    --color-foreground: hsl(40 20% 90%);
+
+    --color-card: hsl(222 18% 14%);
+    --color-card-foreground: hsl(40 20% 90%);
+
+    --color-popover: hsl(222 18% 14%);
+    --color-popover-foreground: hsl(40 20% 90%);
+
+    --color-primary: hsl(152, 61%, 39%);
+    --color-primary-foreground: hsl(40 20% 90%);
+
+    --color-secondary: hsl(222 15% 20%);
+    --color-secondary-foreground: hsl(40 20% 80%);
+
+    --color-muted: hsl(222 15% 18%);
+    --color-muted-foreground: hsl(40 10% 55%);
+
+    --color-accent: hsl(18 60% 55%);
+    --color-accent-foreground: hsl(222 20% 10%);
+
+    --color-destructive: hsl(0 65% 55%);
+    --color-destructive-foreground: hsl(40 20% 90%);
+
+    --color-border: hsl(222 15% 22%);
+    --color-input: hsl(222 15% 22%);
+    --color-ring: hsl(152 42% 45%);
+  }
 }
 
 /* Subtle paper texture overlay */
