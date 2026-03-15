@@ -61,7 +61,6 @@ export function RecipeForm({
         title: '',
         description: '',
         instructions: '',
-        ingredients: '',
         prepTimeMinutes: 10,
         cookTimeMinutes: 20,
         servings: 4,

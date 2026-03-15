@@ -22,11 +22,11 @@ async function main() {
     import('fastify'),
     import('@fastify/cors'),
     import('@fastify/helmet'),
-    import('./plugins/clerk.js'),
-    import('./routes/recipes.js'),
-    import('./routes/users.js'),
+    import('@api/plugins/clerk'),
+    import('@api/routes/recipes'),
+    import('@api/routes/users'),
     import('uploadthing/fastify'),
-    import('./plugins/uploadthing.js'),
+    import('@api/plugins/uploadthing'),
   ]);
 
   const HOST = process.env['API_HOST'] ?? '0.0.0.0';

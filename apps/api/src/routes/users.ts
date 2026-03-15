@@ -4,14 +4,10 @@ import { initServer } from '@ts-rest/fastify';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
+import { notFound, unauthorized } from '../lib/errors';
 import { clerkClient, requireAuth } from '../plugins/clerk.js';
 
 const s = initServer();
-
-const UNAUTH = {
-  status: 401 as const,
-  body: { message: 'Unauthorized users' },
-};
 
 const impl = s.router(contract.users, {
   getMe: async ({ request }) => {
@@ -19,7 +15,7 @@ const impl = s.router(contract.users, {
     try {
       auth = requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     let [user] = await db
@@ -63,12 +59,11 @@ const impl = s.router(contract.users, {
           .returning();
       } catch (err) {
         request.log.error({ err }, 'Failed to sync user from Clerk');
-        return { status: 404 as const, body: { message: 'User not found' } };
+        return notFound('User');
       }
     }
 
-    if (!user)
-      return { status: 404 as const, body: { message: 'User not found' } };
+    if (!user) return notFound('User');
 
     return { status: 200 as const, body: user };
   },
@@ -78,7 +73,7 @@ const impl = s.router(contract.users, {
     try {
       auth = requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     const [updated] = await db
@@ -87,8 +82,7 @@ const impl = s.router(contract.users, {
       .where(eq(users.id, auth.userId))
       .returning();
 
-    if (!updated)
-      return { status: 404 as const, body: { message: 'User not found' } };
+    if (!updated) return notFound('User');
 
     return { status: 200 as const, body: updated };
   },

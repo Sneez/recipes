@@ -23,7 +23,9 @@ export type UserDto = z.infer<typeof selectUserSchema>;
 
 // ── Recipes ───────────────────────────────────────────────────────────────────
 
-export const selectRecipeSchema = createSelectSchema(recipes);
+export const selectRecipeSchema = createSelectSchema(recipes).extend({
+  ingredients: z.array(z.string()),
+});
 
 export const insertRecipeSchema = createInsertSchema(recipes).extend({
   title: z.string().min(2, 'Title must be at least 2 characters').max(255),
@@ -41,6 +43,7 @@ export const createRecipeSchema = insertRecipeSchema
     authorId: true,
     createdAt: true,
     updatedAt: true,
+    deletedAt: true,
   })
   .extend({
     ingredients: z
@@ -65,7 +68,7 @@ export const createRecipeSchema = insertRecipeSchema
   });
 
 // Shape used for updating (all fields optional except id)
-export const updateRecipeSchema = createRecipeSchema.partial();
+export const updateRecipeSchema = createRecipeSchema.omit({}).partial();
 
 // Query / filter params
 export const recipeListQuerySchema = z.object({

@@ -1,29 +1,24 @@
+import {
+  forbidden,
+  notFound,
+  unauthorized,
+  unprocessable,
+} from '@api/lib/errors';
+import { requireAuth } from '@api/plugins/clerk';
 import { contract } from '@recipes/contracts';
 import { db, recipes } from '@recipes/db';
 import { initServer } from '@ts-rest/fastify';
 import { and, count, eq, ilike, isNull, or } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
-import { requireAuth } from '../plugins/clerk.js';
-
 const s = initServer();
-
-const UNAUTH = {
-  status: 401 as const,
-  body: { message: 'Unauthorized recipes' },
-};
-const FORBIDDEN = { status: 403 as const, body: { message: 'Forbidden' } };
-const NOT_FOUND = {
-  status: 404 as const,
-  body: { message: 'Recipe not found' },
-};
 
 const impl = s.router(contract.recipes, {
   list: async ({ request, query }) => {
     try {
       requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     const { page, limit, search, cuisine, difficulty } = query;
@@ -56,7 +51,7 @@ const impl = s.router(contract.recipes, {
     try {
       requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     const [recipe] = await db
@@ -64,7 +59,7 @@ const impl = s.router(contract.recipes, {
       .from(recipes)
       .where(eq(recipes.id, params.id))
       .limit(1);
-    if (!recipe) return NOT_FOUND;
+    if (!recipe) return notFound('Recipe');
 
     return { status: 200 as const, body: recipe };
   },
@@ -75,7 +70,7 @@ const impl = s.router(contract.recipes, {
     try {
       auth = requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     const [recipe] = await db
@@ -83,11 +78,7 @@ const impl = s.router(contract.recipes, {
       .values({ ingredients: [], ...body, authorId: auth.userId })
       .returning();
 
-    if (!recipe)
-      return {
-        status: 422 as const,
-        body: { message: 'Failed to create recipe' },
-      };
+    if (!recipe) return unprocessable('Failed to create recipe');
 
     return { status: 201 as const, body: recipe };
   },
@@ -97,7 +88,7 @@ const impl = s.router(contract.recipes, {
     try {
       auth = requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     const [existing] = await db
@@ -105,8 +96,8 @@ const impl = s.router(contract.recipes, {
       .from(recipes)
       .where(eq(recipes.id, params.id))
       .limit(1);
-    if (!existing) return NOT_FOUND;
-    if (existing.authorId !== auth.userId) return FORBIDDEN;
+    if (!existing) return notFound('Recipe');
+    if (existing.authorId !== auth.userId) return forbidden();
 
     const [updated] = await db
       .update(recipes)
@@ -114,7 +105,7 @@ const impl = s.router(contract.recipes, {
       .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)))
       .returning();
 
-    if (!updated) return NOT_FOUND;
+    if (!updated) return notFound('Recipe');
 
     return { status: 200 as const, body: updated };
   },
@@ -124,7 +115,7 @@ const impl = s.router(contract.recipes, {
     try {
       auth = requireAuth(request);
     } catch {
-      return UNAUTH;
+      return unauthorized();
     }
 
     const [existing] = await db
@@ -132,8 +123,8 @@ const impl = s.router(contract.recipes, {
       .from(recipes)
       .where(eq(recipes.id, params.id))
       .limit(1);
-    if (!existing) return NOT_FOUND;
-    if (existing.authorId !== auth.userId) return FORBIDDEN;
+    if (!existing) return notFound('Recipe');
+    if (existing.authorId !== auth.userId) return forbidden();
 
     const [updated] = await db
       .update(recipes)
@@ -141,7 +132,7 @@ const impl = s.router(contract.recipes, {
       .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)))
       .returning();
 
-    if (!updated) return NOT_FOUND;
+    if (!updated) return notFound('Recipe');
     return { status: 200 as const, body: { success: true } };
   },
 });
