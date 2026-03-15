@@ -1,139 +1,36 @@
 import {
-  forbidden,
-  notFound,
-  unauthorized,
-  unprocessable,
-} from '@api/lib/errors';
-import { requireAuth } from '@api/plugins/clerk';
+  createRecipe,
+  deleteRecipe,
+  getRecipeById,
+  listRecipes,
+  updateRecipe,
+} from '@api/services/recipes.service';
 import { contract } from '@recipes/contracts';
-import { db, recipes } from '@recipes/db';
 import { initServer } from '@ts-rest/fastify';
-import { and, count, eq, ilike, isNull, or } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
 const s = initServer();
 
 const impl = s.router(contract.recipes, {
-  list: async ({ request, query }) => {
-    try {
-      requireAuth(request);
-    } catch {
-      return unauthorized();
-    }
-
-    const { page, limit, search, cuisine, difficulty } = query;
-    const offset = (page - 1) * limit;
-
-    const filters = and(
-      cuisine ? eq(recipes.cuisine, cuisine) : undefined,
-      difficulty ? eq(recipes.difficulty, difficulty) : undefined,
-      search
-        ? or(
-            ilike(recipes.title, `%${search}%`),
-            ilike(recipes.description, `%${search}%`),
-          )
-        : undefined,
-      isNull(recipes.deletedAt),
-    );
-
-    const [items, [{ value: total }]] = await Promise.all([
-      db.select().from(recipes).where(filters).limit(limit).offset(offset),
-      db.select({ value: count() }).from(recipes).where(filters),
-    ]);
-
-    return {
-      status: 200 as const,
-      body: { items, total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+  list: async (args) => {
+    const auth = args.request.auth;
+    return listRecipes(auth?.userId ?? null, args.query) as never;
   },
 
   getById: async ({ request, params }) => {
-    try {
-      requireAuth(request);
-    } catch {
-      return unauthorized();
-    }
-
-    const [recipe] = await db
-      .select()
-      .from(recipes)
-      .where(eq(recipes.id, params.id))
-      .limit(1);
-    if (!recipe) return notFound('Recipe');
-
-    return { status: 200 as const, body: recipe };
+    return getRecipeById(request.auth?.userId ?? null, params.id) as never;
   },
 
   create: async ({ request, body }) => {
-    request.log.info({ body }, 'create recipe request body');
-    let auth;
-    try {
-      auth = requireAuth(request);
-    } catch {
-      return unauthorized();
-    }
-
-    const [recipe] = await db
-      .insert(recipes)
-      .values({ ingredients: [], ...body, authorId: auth.userId })
-      .returning();
-
-    if (!recipe) return unprocessable('Failed to create recipe');
-
-    return { status: 201 as const, body: recipe };
+    return createRecipe(request.auth?.userId ?? null, body) as never;
   },
 
   update: async ({ request, params, body }) => {
-    let auth;
-    try {
-      auth = requireAuth(request);
-    } catch {
-      return unauthorized();
-    }
-
-    const [existing] = await db
-      .select()
-      .from(recipes)
-      .where(eq(recipes.id, params.id))
-      .limit(1);
-    if (!existing) return notFound('Recipe');
-    if (existing.authorId !== auth.userId) return forbidden();
-
-    const [updated] = await db
-      .update(recipes)
-      .set({ ...body, updatedAt: new Date() })
-      .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)))
-      .returning();
-
-    if (!updated) return notFound('Recipe');
-
-    return { status: 200 as const, body: updated };
+    return updateRecipe(request.auth?.userId ?? null, params.id, body) as never;
   },
 
   delete: async ({ request, params }) => {
-    let auth;
-    try {
-      auth = requireAuth(request);
-    } catch {
-      return unauthorized();
-    }
-
-    const [existing] = await db
-      .select()
-      .from(recipes)
-      .where(eq(recipes.id, params.id))
-      .limit(1);
-    if (!existing) return notFound('Recipe');
-    if (existing.authorId !== auth.userId) return forbidden();
-
-    const [updated] = await db
-      .update(recipes)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
-      .where(and(eq(recipes.id, params.id), eq(recipes.authorId, auth.userId)))
-      .returning();
-
-    if (!updated) return notFound('Recipe');
-    return { status: 200 as const, body: { success: true } };
+    return deleteRecipe(request.auth?.userId ?? null, params.id) as never;
   },
 });
 
