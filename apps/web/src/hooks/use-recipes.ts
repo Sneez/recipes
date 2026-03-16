@@ -13,7 +13,7 @@
  * Data flow:
  *   Drizzle schema → drizzle-zod (@recipes/db/zod) → contract → useApi() → these hooks → components
  */
-import type { RecipeListQuery } from '@recipes/db/zod';
+import type { RecipeDto, RecipeListQuery } from '@recipes/db/zod';
 import {
   keepPreviousData,
   useMutation,
@@ -122,6 +122,14 @@ export function useRecipe(id: string | undefined) {
 
 // ── Mutations ─────────────────────────────────────────────────────────────────
 
+type PaginatedRecipes = {
+  items: RecipeDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export function useCreateRecipe() {
   const api = useApi();
   const qc = useQueryClient();
@@ -134,15 +142,49 @@ export function useCreateRecipe() {
       if (res.status !== 201) throw new Error(extractError(res.body));
       return res.body;
     },
-    onSuccess: (recipe) => {
-      // Invalidate all list queries so any active list refetches
-      void qc.invalidateQueries({ queryKey: recipeKeys.lists() });
-      toast.success(`"${recipe.title}" added to your cookbook!`);
+    onMutate: async (body) => {
+      await qc.cancelQueries({ queryKey: recipeKeys.lists() });
+      const snapshots = qc.getQueriesData<PaginatedRecipes>({
+        queryKey: recipeKeys.lists(),
+      });
+
+      // Optimistically prepend a placeholder to every active list.
+      // Cast as RecipeDto — onSettled will replace it with the real server row.
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        authorId: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+        ingredients: [],
+        ...body,
+      } as RecipeDto;
+
+      qc.setQueriesData<PaginatedRecipes>(
+        { queryKey: recipeKeys.lists() },
+        (old) =>
+          old
+            ? {
+                ...old,
+                items: [optimistic, ...old.items],
+                total: old.total + 1,
+              }
+            : old,
+      );
+
+      return { snapshots };
     },
-    onError: (err) => {
+    onError: (err, _body, context) => {
+      context?.snapshots.forEach(([key, data]) => qc.setQueryData(key, data));
       toast.error(
         err instanceof Error ? err.message : 'Failed to create recipe',
       );
+    },
+    onSuccess: (recipe) => {
+      toast.success(`"${recipe.title}" added to your cookbook!`);
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: recipeKeys.lists() });
     },
   });
 }
@@ -163,16 +205,70 @@ export function useUpdateRecipe() {
       if (res.status !== 200) throw new Error(extractError(res.body));
       return res.body;
     },
-    onSuccess: (recipe) => {
-      void qc.invalidateQueries({ queryKey: recipeKeys.lists() });
-      // Update the detail cache immediately
-      qc.setQueryData(recipeKeys.detail(recipe.id), recipe);
-      toast.success(`"${recipe.title}" updated!`);
+    onMutate: async ({ id, body }) => {
+      await qc.cancelQueries({ queryKey: recipeKeys.lists() });
+      await qc.cancelQueries({ queryKey: recipeKeys.detail(id) });
+
+      const listSnapshots = qc.getQueriesData<PaginatedRecipes>({
+        queryKey: recipeKeys.lists(),
+      });
+      const detailSnapshot = qc.getQueryData<RecipeDto>(recipeKeys.detail(id));
+
+      // Optimistically update in every list cache
+      qc.setQueriesData<PaginatedRecipes>(
+        { queryKey: recipeKeys.lists() },
+        (old) =>
+          old
+            ? {
+                ...old,
+                items: old.items.map((r) =>
+                  r.id === id
+                    ? ({
+                        ...r,
+                        ...body,
+                        ingredients: Array.isArray(body.ingredients)
+                          ? body.ingredients
+                          : r.ingredients,
+                        updatedAt: new Date(),
+                      } as RecipeDto)
+                    : r,
+                ),
+              }
+            : old,
+      );
+
+      // Optimistically update detail cache
+      if (detailSnapshot) {
+        qc.setQueryData<RecipeDto>(recipeKeys.detail(id), {
+          ...detailSnapshot,
+          ...body,
+          ingredients: Array.isArray(body.ingredients)
+            ? body.ingredients
+            : detailSnapshot.ingredients,
+          updatedAt: new Date(),
+        } as RecipeDto);
+      }
+
+      return { listSnapshots, detailSnapshot };
     },
-    onError: (err) => {
+    onError: (err, { id }, context) => {
+      context?.listSnapshots.forEach(([key, data]) =>
+        qc.setQueryData(key, data),
+      );
+      if (context?.detailSnapshot) {
+        qc.setQueryData(recipeKeys.detail(id), context.detailSnapshot);
+      }
       toast.error(
         err instanceof Error ? err.message : 'Failed to update recipe',
       );
+    },
+    onSuccess: (recipe) => {
+      qc.setQueryData(recipeKeys.detail(recipe.id), recipe);
+      toast.success(`"${recipe.title}" updated!`);
+    },
+    onSettled: (_data, _err, { id }) => {
+      void qc.invalidateQueries({ queryKey: recipeKeys.lists() });
+      void qc.invalidateQueries({ queryKey: recipeKeys.detail(id) });
     },
   });
 }
@@ -187,15 +283,39 @@ export function useDeleteRecipe() {
       if (res.status !== 200) throw new Error('Failed to delete recipe');
       return id;
     },
-    onSuccess: (id) => {
-      void qc.invalidateQueries({ queryKey: recipeKeys.lists() });
-      qc.removeQueries({ queryKey: recipeKeys.detail(id) });
-      toast.success('Recipe deleted.');
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: recipeKeys.lists() });
+      const snapshots = qc.getQueriesData<PaginatedRecipes>({
+        queryKey: recipeKeys.lists(),
+      });
+
+      // Optimistically remove from every list cache
+      qc.setQueriesData<PaginatedRecipes>(
+        { queryKey: recipeKeys.lists() },
+        (old) =>
+          old
+            ? {
+                ...old,
+                items: old.items.filter((r) => r.id !== id),
+                total: old.total - 1,
+              }
+            : old,
+      );
+
+      return { snapshots };
     },
-    onError: (err) => {
+    onError: (err, _id, context) => {
+      context?.snapshots.forEach(([key, data]) => qc.setQueryData(key, data));
       toast.error(
         err instanceof Error ? err.message : 'Failed to delete recipe',
       );
+    },
+    onSuccess: (id) => {
+      qc.removeQueries({ queryKey: recipeKeys.detail(id) });
+      toast.success('Recipe deleted.');
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: recipeKeys.lists() });
     },
   });
 }
