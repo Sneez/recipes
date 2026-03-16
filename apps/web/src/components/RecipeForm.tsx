@@ -33,6 +33,21 @@ const recipeFormSchema = createRecipeSchema.extend({
 });
 type RecipeFormValues = z.input<typeof recipeFormSchema>;
 
+// Sensible fallback values for the create form. Typed as Partial so that
+// adding new columns to the schema doesn't require touching this file —
+// new fields will simply be undefined until explicitly given a default here.
+const emptyDefaults: Partial<RecipeFormValues> = {
+  title: '',
+  description: '',
+  instructions: '',
+  ingredients: '',
+  prepTimeMinutes: 10,
+  cookTimeMinutes: 20,
+  servings: 4,
+  difficulty: 'medium',
+  cuisine: 'other',
+};
+
 interface RecipeFormProps {
   defaultValues?: Partial<RecipeDto>;
   onSubmit: (data: CreateRecipeInput) => void;
@@ -57,20 +72,19 @@ export function RecipeForm({
         deletedAt: _d,
         ...rest
       } = (defaultValues ?? {}) as Partial<RecipeDto>;
+
+      // Convert null → undefined so nullable DB columns satisfy the form schema
+      const cleaned = Object.fromEntries(
+        Object.entries(rest).map(([k, v]) => [k, v === null ? undefined : v]),
+      ) as Partial<RecipeFormValues>;
+
       return {
-        title: '',
-        description: '',
-        instructions: '',
-        prepTimeMinutes: 10,
-        cookTimeMinutes: 20,
-        servings: 4,
-        difficulty: 'medium' as const,
-        cuisine: 'other' as const,
-        imageUrl: undefined,
-        ...rest,
-        ingredients: Array.isArray(rest.ingredients)
-          ? rest.ingredients.join('\n')
-          : (rest.ingredients ?? ''),
+        ...emptyDefaults,
+        ...cleaned,
+        // Always convert ingredients array to newline string for the textarea
+        ingredients: Array.isArray(cleaned.ingredients)
+          ? cleaned.ingredients.join('\n')
+          : (cleaned.ingredients ?? ''),
       };
     })(),
   });
