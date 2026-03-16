@@ -148,6 +148,7 @@ pnpm docker:up
 ```bash
 pnpm db:generate   # generate SQL from Drizzle schema
 pnpm db:migrate    # apply to Postgres
+pnpm db:seed       # optional: populate with 12 dummy recipes
 ```
 
 ### 7. Start development servers

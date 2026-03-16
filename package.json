@@ -16,7 +16,8 @@
     "db:migrate": "turbo run db:migrate",
     "db:studio": "turbo run db:studio",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "db:seed": "pnpm --filter @recipes/db db:seed"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5",

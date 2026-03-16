@@ -46,6 +46,11 @@ export function RecipeFilters({ showExcludeMine = false }: RecipeFiltersProps) {
     setSearch(debouncedSearch);
   }, [debouncedSearch, setSearch]);
 
+  // Keep localSearch in sync when the store is reset externally
+  useEffect(() => {
+    setLocalSearch(filters.search);
+  }, [filters.search]);
+
   const hasFilters =
     filters.search ||
     filters.cuisine ||

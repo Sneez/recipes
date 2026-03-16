@@ -1,15 +1,24 @@
+import { useEffect, useState } from 'react';
+
 import { CreateRecipeDialog } from '@/components/CreateRecipeDialog';
 import { EditRecipeDialog } from '@/components/EditRecipeDialog';
+import { Pagination } from '@/components/Pagination';
 import { RecipeCard, RecipeCardSkeleton } from '@/components/RecipeCard';
 import { RecipeFilters } from '@/components/RecipeFilters';
 import { useMyRecipes } from '@/hooks/use-recipes';
 import { useRecipeUiStore } from '@/store/recipe-ui.store';
 
 export function MyRecipesPage() {
+  const [page, setPage] = useState(1);
   const { filters } = useRecipeUiStore();
-  const { data, isLoading } = useMyRecipes(filters);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
+  const { data, isLoading } = useMyRecipes({ ...filters, page, limit: 12 });
 
   const recipes = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 1;
   const isEmpty = !isLoading && recipes.length === 0;
 
   return (
@@ -21,7 +30,11 @@ export function MyRecipesPage() {
         >
           My Recipes
         </h1>
-        <p className="text-muted-foreground mt-1">Recipes you've created</p>
+        <p className="text-muted-foreground mt-1">
+          {isLoading
+            ? 'Loading…'
+            : `${data?.total ?? 0} recipe${(data?.total ?? 0) !== 1 ? 's' : ''}`}
+        </p>
       </div>
 
       <RecipeFilters />
@@ -54,6 +67,8 @@ export function MyRecipesPage() {
           ))}
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       <CreateRecipeDialog />
       <EditRecipeDialog />

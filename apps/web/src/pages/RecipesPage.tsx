@@ -1,12 +1,10 @@
-import { useState } from 'react';
-
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { CreateRecipeDialog } from '@/components/CreateRecipeDialog';
 import { EditRecipeDialog } from '@/components/EditRecipeDialog';
+import { Pagination } from '@/components/Pagination';
 import { RecipeCard, RecipeCardSkeleton } from '@/components/RecipeCard';
 import { RecipeFilters } from '@/components/RecipeFilters';
-import { Button } from '@/components/ui/button';
 import { useCurrentUserId } from '@/hooks/use-auth';
 import { useRecipes } from '@/hooks/use-recipes';
 import { useRecipeUiStore } from '@/store/recipe-ui.store';
@@ -15,6 +13,10 @@ export function RecipesPage() {
   const [page, setPage] = useState(1);
   const { filters } = useRecipeUiStore();
   const { userId } = useCurrentUserId();
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
 
   const { data, isLoading, isFetching } = useRecipes({
     page,
@@ -74,32 +76,7 @@ export function RecipesPage() {
         )}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Prev
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {page} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page >= totalPages}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Dialogs — rendered here so they're always mounted when store opens them */}
       <CreateRecipeDialog />
