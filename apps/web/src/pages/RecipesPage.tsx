@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { CreateRecipeDialog } from '@/components/CreateRecipeDialog';
 import { EditRecipeDialog } from '@/components/EditRecipeDialog';
