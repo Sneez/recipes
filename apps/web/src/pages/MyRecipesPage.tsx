@@ -15,7 +15,12 @@ export function MyRecipesPage() {
   useEffect(() => {
     setPage(1);
   }, [filters]);
-  const { data, isLoading } = useMyRecipes({ ...filters, page, limit: 12 });
+  const { data, isLoading } = useMyRecipes({
+    ...filters,
+    page,
+    limit: 12,
+    searchMode: filters.searchMode,
+  });
 
   const recipes = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;

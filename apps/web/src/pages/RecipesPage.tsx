@@ -22,6 +22,7 @@ export function RecipesPage() {
     page,
     limit: 12,
     search: filters.search || undefined,
+    searchMode: filters.searchMode,
     cuisine: filters.cuisine,
     difficulty: filters.difficulty,
     ...(filters.excludeMine && userId ? { excludeAuthorId: userId } : {}),

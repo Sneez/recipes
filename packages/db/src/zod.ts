@@ -75,6 +75,7 @@ export const recipeListQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(50).default(12),
   search: z.string().optional(),
+  searchMode: z.enum(['title', 'ingredients']).default('title'),
   cuisine: selectRecipeSchema.shape.cuisine.optional(),
   difficulty: selectRecipeSchema.shape.difficulty.optional(),
   authorId: z.string().optional(),

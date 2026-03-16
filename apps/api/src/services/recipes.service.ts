@@ -7,7 +7,7 @@ import {
 import { created, ok } from '@api/lib/ts-rest-helpers';
 import { db, recipes } from '@recipes/db';
 import type { CreateRecipeInput, UpdateRecipeInput } from '@recipes/db/zod';
-import { and, count, eq, ilike, isNull, not, or } from 'drizzle-orm';
+import { and, count, eq, ilike, isNull, not, or, sql } from 'drizzle-orm';
 
 export const notDeleted = isNull(recipes.deletedAt);
 
@@ -17,6 +17,7 @@ export async function listRecipes(
     page: number;
     limit: number;
     search?: string | undefined;
+    searchMode?: 'title' | 'ingredients' | undefined;
     cuisine?: string | undefined;
     difficulty?: string | undefined;
     authorId?: string | undefined;
@@ -29,12 +30,38 @@ export async function listRecipes(
     page,
     limit,
     search,
+    searchMode = 'title',
     cuisine,
     difficulty,
     authorId,
     excludeAuthorId,
   } = query;
   const offset = (page - 1) * limit;
+
+  // Split search string into individual terms for ingredient matching
+  const terms = search
+    ? search
+        .split(/[\s,]+/)
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
+
+  const searchFilter = search
+    ? searchMode === 'ingredients'
+      ? // Match recipes that contain ANY of the search terms in their ingredients array
+        or(
+          ...terms.map(
+            (term) => sql`EXISTS (
+          SELECT 1 FROM unnest(${recipes.ingredients}) AS ing
+          WHERE ing ILIKE ${'%' + term + '%'}
+        )`,
+          ),
+        )
+      : or(
+          ilike(recipes.title, `%${search}%`),
+          ilike(recipes.description, `%${search}%`),
+        )
+    : undefined;
 
   const filters = and(
     notDeleted,
@@ -46,16 +73,29 @@ export async function listRecipes(
     difficulty
       ? eq(recipes.difficulty, difficulty as typeof recipes.difficulty._.data)
       : undefined,
-    search
-      ? or(
-          ilike(recipes.title, `%${search}%`),
-          ilike(recipes.description, `%${search}%`),
-        )
-      : undefined,
+    searchFilter,
   );
 
+  // For ingredient search, rank by number of matching ingredients descending
+  const orderBy =
+    searchMode === 'ingredients' && terms.length > 0
+      ? sql`(
+        SELECT COUNT(*) FROM unnest(${recipes.ingredients}) AS ing
+        WHERE ${sql.join(
+          terms.map((term) => sql`ing ILIKE ${'%' + term + '%'}`),
+          sql` OR `,
+        )}
+      ) DESC, ${recipes.id} ASC`
+      : sql`${recipes.createdAt} DESC, ${recipes.id} ASC`;
+
   const [items, [countRow]] = await Promise.all([
-    db.select().from(recipes).where(filters).limit(limit).offset(offset),
+    db
+      .select()
+      .from(recipes)
+      .where(filters)
+      .orderBy(orderBy)
+      .limit(limit)
+      .offset(offset),
     db.select({ value: count() }).from(recipes).where(filters),
   ]);
 
